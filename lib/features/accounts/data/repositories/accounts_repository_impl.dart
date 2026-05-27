@@ -8,6 +8,7 @@ import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/accounts_repository.dart';
 import '../datasources/accounts_web_service.dart';
 import '../models/auth_request_model.dart';
+import '../models/update_archive_status_request_model.dart';
 
 class AccountsRepositoryImpl implements AccountsRepository {
   final AccountsWebService _webService;
@@ -84,6 +85,31 @@ class AccountsRepositoryImpl implements AccountsRepository {
       }
       return FailureResult(
         ServerFailure(response.message ?? 'المستخدم غير موجود'),
+      );
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<Result<String>> updateUserArchiveStatus({
+    required String userId,
+    required bool isArchived,
+    String? reason,
+  }) async {
+    try {
+      final response = await _webService.updateUserArchiveStatus(
+        UpdateArchiveStatusRequestModel(
+          userId: userId,
+          isArchived: isArchived,
+          reason: reason,
+        ),
+      );
+      if (response.isSucceeded) {
+        return Success(response.message ?? 'تم التحديث بنجاح');
+      }
+      return FailureResult(
+        ServerFailure(response.message ?? 'فشل تحديث حالة العميل'),
       );
     } catch (e) {
       return FailureResult(ErrorHandler.handle(e));

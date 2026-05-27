@@ -13,6 +13,7 @@ import '../../features/accounts/domain/usecases/admin_login_usecase.dart';
 import '../../features/accounts/domain/usecases/get_all_users_usecase.dart';
 import '../../features/accounts/domain/usecases/get_user_by_id_usecase.dart';
 import '../../features/accounts/domain/usecases/register_admin_usecase.dart';
+import '../../features/accounts/domain/usecases/update_user_archive_status_usecase.dart';
 import '../../features/accounts/presentation/cubit/auth_cubit.dart';
 import '../../features/accounts/presentation/cubit/users_cubit.dart';
 
@@ -79,21 +80,22 @@ Future<void> initDependencies() async {
 
   // ===== Accounts =====
   sl.registerLazySingleton<AccountsWebService>(
-    () => AccountsWebService(sl(), baseUrl: ApiConstants.baseUrl),
+        () => AccountsWebService(sl(), baseUrl: ApiConstants.baseUrl),
   );
   sl.registerLazySingleton<AccountsRepository>(
-    () => AccountsRepositoryImpl(sl(), sl()),
+        () => AccountsRepositoryImpl(sl(), sl()),
   );
   sl.registerLazySingleton(() => AdminLoginUseCase(sl()));
   sl.registerLazySingleton(() => RegisterAdminUseCase(sl()));
   sl.registerLazySingleton(() => GetAllUsersUseCase(sl()));
   sl.registerLazySingleton(() => GetUserByIdUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateUserArchiveStatusUseCase(sl()));
   sl.registerFactory(() => AuthCubit(sl(), sl(), sl()));
-  sl.registerFactory(() => UsersCubit(sl(), sl()));
+  sl.registerFactory(() => UsersCubit(sl(), sl(), sl()));
 
   // ===== Carts =====
   sl.registerLazySingleton<CartsWebService>(
-    () => CartsWebService(sl(), baseUrl: ApiConstants.baseUrl),
+        () => CartsWebService(sl(), baseUrl: ApiConstants.baseUrl),
   );
   sl.registerLazySingleton<CartsRepository>(() => CartsRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetCartUseCase(sl()));
@@ -105,10 +107,10 @@ Future<void> initDependencies() async {
 
   // ===== Categories =====
   sl.registerLazySingleton<CategoriesWebService>(
-    () => CategoriesWebService(sl(), baseUrl: ApiConstants.baseUrl),
+        () => CategoriesWebService(sl(), baseUrl: ApiConstants.baseUrl),
   );
   sl.registerLazySingleton<CategoriesRepository>(
-    () => CategoriesRepositoryImpl(sl()),
+        () => CategoriesRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => GetAllCategoriesUseCase(sl()));
   sl.registerLazySingleton(() => GetCategoryByIdUseCase(sl()));
@@ -117,15 +119,15 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => ArchiveCategoryUseCase(sl()));
   sl.registerLazySingleton(() => UnArchiveCategoryUseCase(sl()));
   sl.registerFactory(
-    () => CategoriesCubit(sl(), sl(), sl(), sl(), sl(), sl()),
+        () => CategoriesCubit(sl(), sl(), sl(), sl(), sl(), sl()),
   );
 
   // ===== Flavors =====
   sl.registerLazySingleton<FlavorsWebService>(
-    () => FlavorsWebService(sl(), baseUrl: ApiConstants.baseUrl),
+        () => FlavorsWebService(sl(), baseUrl: ApiConstants.baseUrl),
   );
   sl.registerLazySingleton<FlavorsRepository>(
-    () => FlavorsRepositoryImpl(sl()),
+        () => FlavorsRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => GetAllFlavorsUseCase(sl()));
   sl.registerLazySingleton(() => GetFlavorByIdUseCase(sl()));
@@ -137,10 +139,10 @@ Future<void> initDependencies() async {
 
   // ===== Orders =====
   sl.registerLazySingleton<OrdersWebService>(
-    () => OrdersWebService(sl(), baseUrl: ApiConstants.baseUrl),
+        () => OrdersWebService(sl(), baseUrl: ApiConstants.baseUrl),
   );
   sl.registerLazySingleton<OrdersRepository>(
-    () => OrdersRepositoryImpl(sl()),
+        () => OrdersRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => GetMyOrdersUseCase(sl()));
   sl.registerLazySingleton(() => GetAllOrdersUseCase(sl()));
@@ -152,10 +154,10 @@ Future<void> initDependencies() async {
 
   // ===== Products =====
   sl.registerLazySingleton<ProductsWebService>(
-    () => ProductsWebService(sl(), baseUrl: ApiConstants.baseUrl),
+        () => ProductsWebService(sl(), baseUrl: ApiConstants.baseUrl),
   );
   sl.registerLazySingleton<ProductsRepository>(
-    () => ProductsRepositoryImpl(sl()),
+        () => ProductsRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => GetAllProductsUseCase(sl()));
   sl.registerLazySingleton(() => GetProductByIdUseCase(sl()));
@@ -165,21 +167,21 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => UnArchiveProductUseCase(sl()));
   sl.registerLazySingleton(() => AssignFlavorsToProductUseCase(sl()));
   sl.registerFactory(
-    () => ProductsCubit(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
+        () => ProductsCubit(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
   );
 
   // ===== ProductSizes =====
   sl.registerLazySingleton<ProductSizesWebService>(
-    () => ProductSizesWebService(sl(), baseUrl: ApiConstants.baseUrl),
+        () => ProductSizesWebService(sl(), baseUrl: ApiConstants.baseUrl),
   );
   sl.registerLazySingleton<ProductSizesRepository>(
-    () => ProductSizesRepositoryImpl(sl()),
+        () => ProductSizesRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => GetProductSizesUseCase(sl()));
   sl.registerLazySingleton(() => AddProductSizeUseCase(sl()));
   sl.registerLazySingleton(() => UpdateProductSizeUseCase(sl()));
   sl.registerLazySingleton(() => ArchiveProductSizeUseCase(sl()));
   sl.registerFactory(
-    () => ProductSizesCubit(sl(), sl(), sl(), sl()),
+        () => ProductSizesCubit(sl(), sl(), sl(), sl()),
   );
 }

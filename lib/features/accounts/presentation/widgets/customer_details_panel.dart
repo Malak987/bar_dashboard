@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import "package:characters/characters.dart";
+import "package:characters/characters.dart";
+import '../../../orders/presentation/cubit/orders_cubit.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/gps_helper.dart';
 import '../../../orders/domain/entities/order_entity.dart';
-import '../../../orders/presentation/cubit/orders_cubit.dart';
 import '../../../orders/presentation/utils/daily_order_numbering.dart';
 import '../../domain/entities/user_entity.dart';
 import '../cubit/users_cubit.dart';
@@ -12,10 +14,20 @@ import '../utils/customer_stats.dart';
 import 'block_user_dialog.dart';
 
 /// 👤 لوحة تفاصيل العميل - يمين Master-Detail
+///
+/// [allOrders] — كل الطلبات اللي بنفلتر منها طلبات العميل ده.
+/// لو [allOrders] null، بنحاول نجيبهم من OrdersCubit (للتوافق مع الصفحات القديمة).
 class CustomerDetailsPanel extends StatelessWidget {
   final UserEntity user;
 
-  const CustomerDetailsPanel({super.key, required this.user});
+  /// 🆕 الطلبات تُمرر مباشرة من صفحة العملاء — بدل الاعتماد على Cubit
+  final List<OrderEntity>? allOrders;
+
+  const CustomerDetailsPanel({
+    super.key,
+    required this.user,
+    this.allOrders,
+  });
 
   Future<void> _callPhone(String number) async {
     final uri = Uri(scheme: 'tel', path: number);
@@ -93,45 +105,56 @@ class CustomerDetailsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // نجيب الـ orders للحساب
+    // 🎯 لو الـ allOrders مُمرر → نستخدمه مباشرة
+    // غير كده → نقع على OrdersCubit (للتوافق مع الصفحات التانية)
+    if (allOrders != null) {
+      final userOrders =
+      allOrders!.where((o) => o.userId == user.id).toList();
+      final stats = CustomerStats(userOrders);
+      return _buildContent(context, stats);
+    }
+
+    // fallback: Cubit
     return BlocBuilder<OrdersCubit, OrdersState>(
       buildWhen: (prev, current) {
         if (current is OrdersLoading && prev is OrdersLoaded) return false;
         return true;
       },
       builder: (context, ordersState) {
-        // فلتر طلبات هذا العميل بالذات
-        final allOrders = ordersState is OrdersLoaded
+        final orders = ordersState is OrdersLoaded
             ? (ordersState.orders.items as List).cast<OrderEntity>()
             : <OrderEntity>[];
         final userOrders =
-        allOrders.where((o) => o.userId == user.id).toList();
+        orders.where((o) => o.userId == user.id).toList();
         final stats = CustomerStats(userOrders);
-
-        return Container(
-          color: AppColors.background,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildHeroHeader(stats),
-                const SizedBox(height: 16),
-                _buildContactSection(context),
-                const SizedBox(height: 16),
-                _buildAddressSection(),
-                const SizedBox(height: 16),
-                _buildStatsSection(stats),
-                const SizedBox(height: 16),
-                _buildLatestOrders(stats),
-                const SizedBox(height: 16),
-                _buildActionButtons(context),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        );
+        return _buildContent(context, stats);
       },
+    );
+  }
+
+  Widget _buildContent(BuildContext context, CustomerStats stats) {
+    return Container(
+      color: AppColors.background,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildHeroHeader(stats),
+            const SizedBox(height: 16),
+            _buildContactSection(context),
+            const SizedBox(height: 16),
+            _buildAddressSection(),
+            const SizedBox(height: 16),
+            _buildStatsSection(stats),
+            const SizedBox(height: 16),
+            _buildLatestOrders(stats),
+            const SizedBox(height: 16),
+            _buildActionButtons(context),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
     );
   }
 
@@ -222,14 +245,13 @@ class CustomerDetailsPanel extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        // التصنيف الذهبي/الفضي/إلخ
                         if (!isBlocked && tier != CustomerTier.regular)
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: AppColors.warning
-                                  .withValues(alpha: 0.15),
+                              color:
+                              AppColors.warning.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
                                 color: AppColors.warning
@@ -486,11 +508,8 @@ class CustomerDetailsPanel extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _statCard(
-                    Icons.shopping_basket,
-                    '${stats.totalOrders}',
-                    'إجمالي الطلبات',
-                    AppColors.info),
+                child: _statCard(Icons.shopping_basket, '${stats.totalOrders}',
+                    'إجمالي الطلبات', AppColors.info),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -506,19 +525,13 @@ class CustomerDetailsPanel extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _statCard(
-                    Icons.check_circle,
-                    '${stats.deliveredOrders}',
-                    'مكتمل',
-                    AppColors.success),
+                child: _statCard(Icons.check_circle, '${stats.deliveredOrders}',
+                    'مكتمل', AppColors.success),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _statCard(
-                    Icons.cancel,
-                    '${stats.cancelledOrders}',
-                    'ملغي',
-                    AppColors.error),
+                child: _statCard(Icons.cancel, '${stats.cancelledOrders}',
+                    'ملغي', AppColors.error),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -580,7 +593,6 @@ class CustomerDetailsPanel extends StatelessWidget {
       );
     }
 
-    // نجيب الترقيم اليومي
     final numbering = DailyOrderNumbering(stats.userOrders);
 
     return _section(
@@ -710,8 +722,7 @@ class CustomerDetailsPanel extends StatelessWidget {
               child: CircularProgressIndicator(
                   strokeWidth: 2, color: Colors.white),
             )
-                : Icon(isBlocked ? Icons.lock_open : Icons.block,
-                size: 20),
+                : Icon(isBlocked ? Icons.lock_open : Icons.block, size: 20),
             label: Text(
               isLoading
                   ? 'جاري التحديث...'
@@ -830,8 +841,8 @@ class CustomerDetailsPanel extends StatelessWidget {
         Icon(icon, size: 14, color: AppColors.textHint),
         const SizedBox(width: 8),
         Text('$label: ',
-            style:
-            const TextStyle(color: AppColors.textHint, fontSize: 12)),
+            style: const TextStyle(
+                color: AppColors.textHint, fontSize: 12)),
         Expanded(
           child: Text(value,
               style: const TextStyle(

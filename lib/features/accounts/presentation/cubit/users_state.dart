@@ -46,3 +46,22 @@ class UserByIdFailure extends UsersState {
   @override
   List<Object?> get props => [message];
 }
+
+// User action states (block/unblock)
+class UserActionLoading extends UsersState {
+  const UserActionLoading();
+}
+
+class UserActionSuccess extends UsersState {
+  final String message;
+  const UserActionSuccess(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
+class UserActionFailure extends UsersState {
+  final String message;
+  const UserActionFailure(this.message);
+  @override
+  List<Object?> get props => [message];
+}

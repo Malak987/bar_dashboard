@@ -6,6 +6,8 @@ class ApiConstants {
   static const String adminLogin = '/api/Accounts/AdminLogin';
   static const String getAllUsers = '/api/Accounts/GetAllUser';
   static const String getUserById = '/api/Accounts/GetUserById';
+  static const String updateUserArchiveStatus =
+      '/api/Accounts/UpdateUserArchiveStatus';
 
   // Carts
   static const String getCart = '/api/Carts/GetCart';

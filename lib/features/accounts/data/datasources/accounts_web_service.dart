@@ -5,6 +5,7 @@ import '../../../../core/network/api_response.dart';
 import '../models/auth_model.dart';
 import '../models/auth_request_model.dart';
 import '../models/paginated_users_model.dart';
+import '../models/update_archive_status_request_model.dart';
 import '../models/user_model.dart';
 
 part 'accounts_web_service.g.dart';
@@ -28,4 +29,10 @@ abstract class AccountsWebService {
 
   @GET('${ApiConstants.getUserById}/{id}')
   Future<ApiResponse<UserModel>> getUserById(@Path('id') String id);
+
+  /// حظر / فك حظر العميل
+  @PUT(ApiConstants.updateUserArchiveStatus)
+  Future<ApiResponse<dynamic>> updateUserArchiveStatus(
+      @Body() UpdateArchiveStatusRequestModel body,
+      );
 }

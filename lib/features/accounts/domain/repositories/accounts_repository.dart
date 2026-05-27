@@ -17,4 +17,11 @@ abstract class AccountsRepository {
   Future<Result<PaginatedUsersEntity>> getAllUsers();
 
   Future<Result<UserEntity>> getUserById(String id);
+
+  /// حظر / فك حظر العميل
+  Future<Result<String>> updateUserArchiveStatus({
+    required String userId,
+    required bool isArchived,
+    String? reason,
+  });
 }

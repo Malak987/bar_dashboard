@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../features/accounts/presentation/pages/customers_page.dart';
 import '../../features/accounts/presentation/pages/login_page.dart';
 import '../../features/accounts/presentation/pages/register_page.dart';
 import '../../features/categories/presentation/pages/categories_page.dart';
@@ -56,9 +57,10 @@ class AppRoutes {
         return _route(const ProductsPage(), settings);
       case categories:
         return _route(const CategoriesPage(), settings);
-
       case orders:
         return _route(const OrdersPage(), settings);
+      case customers:
+        return _route(const CustomersPage(), settings);
 
     // ===== Coming Soon =====
       case flavors:
@@ -66,10 +68,6 @@ class AppRoutes {
       case inventory:
         return _route(
             const ComingSoonPage(pageName: 'المخزون', icon: Icons.inventory_2),
-            settings);
-      case customers:
-        return _route(
-            const ComingSoonPage(pageName: 'العملاء', icon: Icons.people),
             settings);
       case employees:
         return _route(

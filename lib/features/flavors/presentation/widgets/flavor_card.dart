@@ -1,0 +1,173 @@
+import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../domain/entities/flavor_entity.dart';
+
+class FlavorCard extends StatelessWidget {
+  final FlavorEntity flavor;
+  final VoidCallback onEdit;
+  final VoidCallback onArchive;
+  final VoidCallback onUnArchive;
+  final VoidCallback onTap;
+
+  const FlavorCard({
+    super.key,
+    required this.flavor,
+    required this.onEdit,
+    required this.onArchive,
+    required this.onUnArchive,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: flavor.isArchived
+                ? AppColors.error.withValues(alpha: 0.5)
+                : AppColors.border,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ═════ Image ═════
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(16)),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 10,
+                    child: flavor.fullImageUrl != null
+                        ? Image.network(
+                      flavor.fullImageUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _placeholder(),
+                      loadingBuilder: (_, child, p) => p == null
+                          ? child
+                          : Container(
+                        color: AppColors.surfaceLight,
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                              color: AppColors.primary),
+                        ),
+                      ),
+                    )
+                        : _placeholder(),
+                  ),
+                ),
+                // Top badges
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (flavor.isArchived)
+                        _badge('📦 مؤرشف', AppColors.error)
+                      else if (!flavor.isAvailable)
+                        _badge('⏸ غير متاح', AppColors.warning)
+                      else
+                        _badge('✓ متاح', AppColors.success),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            // ═════ Body ═════
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    flavor.nameAr,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    flavor.nameEn,
+                    style: const TextStyle(
+                        color: AppColors.textHint, fontSize: 11),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    flavor.descriptionAr,
+                    style: const TextStyle(
+                        color: AppColors.textSecondary, fontSize: 11),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 10),
+                  const Divider(height: 1, color: AppColors.border),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, size: 18),
+                        color: AppColors.info,
+                        tooltip: 'تعديل',
+                        onPressed: onEdit,
+                      ),
+                      flavor.isArchived
+                          ? IconButton(
+                        icon: const Icon(Icons.unarchive, size: 18),
+                        color: AppColors.success,
+                        tooltip: 'إلغاء الأرشفة',
+                        onPressed: onUnArchive,
+                      )
+                          : IconButton(
+                        icon: const Icon(Icons.archive, size: 18),
+                        color: AppColors.error,
+                        tooltip: 'أرشفة',
+                        onPressed: onArchive,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _placeholder() => Container(
+    color: AppColors.surfaceLight,
+    child: const Icon(Icons.local_drink_outlined,
+        size: 50, color: AppColors.textHint),
+  );
+
+  Widget _badge(String label, Color color) => Container(
+    margin: const EdgeInsets.only(bottom: 4),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(6),
+    ),
+    child: Text(
+      label,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 10,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  );
+}

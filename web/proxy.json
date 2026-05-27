@@ -1,0 +1,7 @@
+{
+  "/api/*": {
+    "target": "https://bar-backend.runasp.net",
+    "changeOrigin": true,
+    "secure": false
+  }
+}

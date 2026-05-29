@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/user_entity.dart';
 
-/// 🚫 Dialog لحظر العميل مع سبب
 class BlockUserDialog extends StatefulWidget {
   final UserEntity user;
-
-  /// callback لما الأدمن يأكد الحظر مع السبب
   final void Function(String reason) onConfirm;
 
   const BlockUserDialog({
@@ -23,25 +21,29 @@ class _BlockUserDialogState extends State<BlockUserDialog> {
   final _reasonController = TextEditingController();
   String? _selectedReason;
 
-  static const _commonReasons = [
-    'كثرة إلغاء الطلبات',
-    'عميل مزعج / تعليقات سيئة',
-    'محاولات احتيال',
-    'عدم استلام الطلبات المؤكدة',
-    'رفض الدفع عند الاستلام',
-    'سلوك غير لائق',
-    'سبب آخر',
-  ];
-
   @override
   void dispose() {
     _reasonController.dispose();
     super.dispose();
   }
 
+  List<String> _commonReasons(BuildContext context) {
+    final l10n = context.l10n;
+    return [
+      l10n.reasonTooManyCancels,
+      l10n.reasonBadComments,
+      l10n.reasonFraud,
+      l10n.reasonNoPickup,
+      l10n.reasonCashRefusal,
+      l10n.reasonBadBehavior,
+      l10n.reasonOther,
+    ];
+  }
+
   void _submit() {
+    final l10n = context.l10n;
     String finalReason = '';
-    if (_selectedReason != null && _selectedReason != 'سبب آخر') {
+    if (_selectedReason != null && _selectedReason != l10n.reasonOther) {
       finalReason = _selectedReason!;
     }
     if (_reasonController.text.trim().isNotEmpty) {
@@ -51,8 +53,8 @@ class _BlockUserDialogState extends State<BlockUserDialog> {
     }
     if (finalReason.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى اختيار أو كتابة سبب الحظر'),
+        SnackBar(
+          content: Text(l10n.selectOrWriteReason),
           backgroundColor: AppColors.warning,
         ),
       );
@@ -64,6 +66,9 @@ class _BlockUserDialogState extends State<BlockUserDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final reasons = _commonReasons(context);
+
     return Dialog(
       backgroundColor: AppColors.surface,
       child: ConstrainedBox(
@@ -71,7 +76,6 @@ class _BlockUserDialogState extends State<BlockUserDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -89,75 +93,71 @@ class _BlockUserDialogState extends State<BlockUserDialog> {
                       color: AppColors.error,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.block,
-                        color: Colors.white, size: 20),
+                    child: const Icon(Icons.block, color: Colors.white, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('حظر العميل',
-                            style: TextStyle(
-                                color: AppColors.error,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16)),
-                        Text(widget.user.name,
-                            style: const TextStyle(
-                                color: AppColors.textSecondary,
-                                fontSize: 12)),
+                        Text(
+                          l10n.confirmBlock,
+                          style: const TextStyle(
+                            color: AppColors.error,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          widget.user.name,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            // Body
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('سبب الحظر:',
-                      style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14)),
+                  Text(
+                    l10n.blockReason,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
                   const SizedBox(height: 10),
-                  // أسباب جاهزة
                   Wrap(
                     spacing: 6,
                     runSpacing: 6,
-                    children: _commonReasons.map((reason) {
+                    children: reasons.map((reason) {
                       final isSelected = _selectedReason == reason;
                       return InkWell(
-                        onTap: () =>
-                            setState(() => _selectedReason = reason),
+                        onTap: () => setState(() => _selectedReason = reason),
                         borderRadius: BorderRadius.circular(20),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.error
-                                : AppColors.surfaceLight,
+                            color: isSelected ? AppColors.error : AppColors.surfaceLight,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: isSelected
-                                  ? AppColors.error
-                                  : AppColors.border,
+                              color: isSelected ? AppColors.error : AppColors.border,
                             ),
                           ),
                           child: Text(
                             reason,
                             style: TextStyle(
-                              color: isSelected
-                                  ? Colors.white
-                                  : AppColors.textSecondary,
+                              color: isSelected ? Colors.white : AppColors.textSecondary,
                               fontSize: 11,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                             ),
                           ),
                         ),
@@ -165,15 +165,14 @@ class _BlockUserDialogState extends State<BlockUserDialog> {
                     }).toList(),
                   ),
                   const SizedBox(height: 14),
-                  // سبب مخصص
                   TextField(
                     controller: _reasonController,
                     maxLines: 2,
                     style: const TextStyle(color: AppColors.textPrimary),
-                    decoration: const InputDecoration(
-                      labelText: 'تفاصيل إضافية (اختياري)',
-                      hintText: 'اكتب أي تفاصيل تخص الحظر...',
-                      prefixIcon: Icon(Icons.edit_note),
+                    decoration: InputDecoration(
+                      labelText: l10n.customReasonOptional,
+                      hintText: l10n.writeReasonHint,
+                      prefixIcon: const Icon(Icons.edit_note),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -183,21 +182,20 @@ class _BlockUserDialogState extends State<BlockUserDialog> {
                       color: AppColors.warning.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                       border: Border(
-                        right:
-                        BorderSide(color: AppColors.warning, width: 3),
+                        right: BorderSide(color: AppColors.warning, width: 3),
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.info_outline,
-                            color: AppColors.warning, size: 16),
-                        SizedBox(width: 8),
+                        const Icon(Icons.info_outline, color: AppColors.warning, size: 16),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'العميل لن يقدر يعمل طلبات جديدة لحد ما تفك الحظر',
-                            style: TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 11),
+                            l10n.customerWillBeBlocked,
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 11,
+                            ),
                           ),
                         ),
                       ],
@@ -206,7 +204,6 @@ class _BlockUserDialogState extends State<BlockUserDialog> {
                 ],
               ),
             ),
-            // Footer
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
@@ -217,11 +214,7 @@ class _BlockUserDialogState extends State<BlockUserDialog> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      style: OutlinedButton.styleFrom(
-                        padding:
-                        const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: const Text('إلغاء'),
+                      child: Text(l10n.cancel),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -230,12 +223,8 @@ class _BlockUserDialogState extends State<BlockUserDialog> {
                     child: ElevatedButton.icon(
                       onPressed: _submit,
                       icon: const Icon(Icons.block),
-                      label: const Text('تأكيد الحظر'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.error,
-                        padding:
-                        const EdgeInsets.symmetric(vertical: 14),
-                      ),
+                      label: Text(l10n.confirmBlockAction),
+                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
                     ),
                   ),
                 ],

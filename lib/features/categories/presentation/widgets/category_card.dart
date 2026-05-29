@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/category_entity.dart';
 
@@ -20,6 +21,11 @@ class CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    final categoryName = isArabic ? category.nameAr : category.nameEn;
+    final description = isArabic ? category.descriptionAr : category.descriptionEn;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -39,25 +45,23 @@ class CategoryCard extends StatelessWidget {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                   child: AspectRatio(
                     aspectRatio: 16 / 10,
                     child: category.fullImageUrl != null
                         ? Image.network(
-                      category.fullImageUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _placeholder(),
-                      loadingBuilder: (_, child, p) => p == null
-                          ? child
-                          : Container(
-                          color: AppColors.surfaceLight,
-                          child: const Center(
-                              child:
-                              CircularProgressIndicator(
-                                  color:
-                                  AppColors.primary))),
-                    )
+                            category.fullImageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => _placeholder(),
+                            loadingBuilder: (_, child, p) => p == null
+                                ? child
+                                : Container(
+                                    color: AppColors.surfaceLight,
+                                    child: const Center(
+                                      child: CircularProgressIndicator(color: AppColors.primary),
+                                    ),
+                                  ),
+                          )
                         : _placeholder(),
                   ),
                 ),
@@ -66,25 +70,26 @@ class CategoryCard extends StatelessWidget {
                     top: 8,
                     right: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: AppColors.error,
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text('📦 مؤرشفة',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold)),
+                      child: Text(
+                        l10n.archivedBadge,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 Positioned(
                   bottom: 8,
                   left: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(20),
@@ -92,14 +97,16 @@ class CategoryCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.inventory_2,
-                            color: Colors.white, size: 12),
+                        const Icon(Icons.inventory_2, color: Colors.white, size: 12),
                         const SizedBox(width: 4),
-                        Text('${category.productsCount} منتج',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11)),
+                        Text(
+                          l10n.productsCountLabel(category.productsCount),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -111,24 +118,29 @@ class CategoryCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(category.nameAr,
-                      style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
-                  Text(category.nameEn,
-                      style: const TextStyle(
-                          color: AppColors.textHint, fontSize: 11),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    categoryName,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    isArabic ? category.nameEn : category.nameAr,
+                    style: const TextStyle(color: AppColors.textHint, fontSize: 11),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 6),
-                  Text(category.descriptionAr,
-                      style: const TextStyle(
-                          color: AppColors.textSecondary, fontSize: 11),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    description,
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 8),
                   const Divider(height: 1, color: AppColors.border),
                   const SizedBox(height: 4),
@@ -138,22 +150,22 @@ class CategoryCard extends StatelessWidget {
                       IconButton(
                         icon: const Icon(Icons.edit, size: 18),
                         color: AppColors.info,
-                        tooltip: 'تعديل',
+                        tooltip: l10n.edit,
                         onPressed: onEdit,
                       ),
                       category.isArchived
                           ? IconButton(
-                        icon: const Icon(Icons.unarchive, size: 18),
-                        color: AppColors.success,
-                        tooltip: 'إلغاء الأرشفة',
-                        onPressed: onUnArchive,
-                      )
+                              icon: const Icon(Icons.unarchive, size: 18),
+                              color: AppColors.success,
+                              tooltip: l10n.reopenBranch,
+                              onPressed: onUnArchive,
+                            )
                           : IconButton(
-                        icon: const Icon(Icons.archive, size: 18),
-                        color: AppColors.error,
-                        tooltip: 'أرشفة',
-                        onPressed: onArchive,
-                      ),
+                              icon: const Icon(Icons.archive, size: 18),
+                              color: AppColors.error,
+                              tooltip: l10n.archiveAction,
+                              onPressed: onArchive,
+                            ),
                     ],
                   ),
                 ],
@@ -166,8 +178,7 @@ class CategoryCard extends StatelessWidget {
   }
 
   Widget _placeholder() => Container(
-    color: AppColors.surfaceLight,
-    child: const Icon(Icons.category_outlined,
-        size: 50, color: AppColors.textHint),
-  );
+        color: AppColors.surfaceLight,
+        child: const Icon(Icons.category_outlined, size: 50, color: AppColors.textHint),
+      );
 }

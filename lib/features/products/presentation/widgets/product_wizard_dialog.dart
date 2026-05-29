@@ -1,7 +1,8 @@
-import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/multipart_helper.dart';
 import '../../../categories/domain/entities/category_entity.dart';
@@ -88,7 +89,7 @@ class _ProductWizardDialogState extends State<ProductWizardDialog> {
           const Icon(Icons.add_box, color: AppColors.primary),
           const SizedBox(width: 8),
           Text(
-            isEdit ? 'تعديل المنتج' : 'إضافة منتج جديد',
+            isEdit ? context.l10n.productWizardEditTitle : context.l10n.productWizardAddTitle,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -108,9 +109,9 @@ class _ProductWizardDialogState extends State<ProductWizardDialog> {
 
   Widget _buildStepperIndicator() {
     final steps = [
-      'البيانات الأساسية',
-      'الأحجام',
-      'النكهات',
+      context.l10n.wizardStepBasic,
+      context.l10n.wizardStepSizes,
+      context.l10n.wizardStepFlavors,
     ];
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
@@ -318,11 +319,11 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategoryId == null) {
-      _showError('اختر فئة');
+      _showError(context.l10n.selectCategoryError);
       return;
     }
     if (!isEdit && _pickedImageBytes == null) {
-      _showError('اختر صورة للمنتج');
+      _showError(context.l10n.selectProductImageError);
       return;
     }
 
@@ -416,7 +417,7 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
                         Expanded(
                           child: _textField(
                             _nameArController,
-                            'الاسم بالعربية *',
+                            context.l10n.nameArField,
                             Icons.text_fields,
                           ),
                         ),
@@ -424,7 +425,7 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
                         Expanded(
                           child: _textField(
                             _nameEnController,
-                            'Name (English) *',
+                            context.l10n.nameEnField,
                             Icons.text_fields,
                           ),
                         ),
@@ -433,14 +434,14 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
                     const SizedBox(height: 12),
                     _textField(
                       _descArController,
-                      'الوصف بالعربية *',
+                      context.l10n.descriptionArField,
                       Icons.description,
                       maxLines: 2,
                     ),
                     const SizedBox(height: 12),
                     _textField(
                       _descEnController,
-                      'Description (English) *',
+                      context.l10n.descriptionEnField,
                       Icons.description,
                       maxLines: 2,
                     ),
@@ -450,7 +451,7 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
                         Expanded(
                           child: _textField(
                             _sizeNameController,
-                            'اسم الحجم الافتراضي',
+                            context.l10n.defaultSizeNameField,
                             Icons.straighten,
                             required: false,
                           ),
@@ -459,7 +460,7 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
                         Expanded(
                           child: _textField(
                             _basePriceController,
-                            'السعر الأساسي *',
+                            context.l10n.basePriceField,
                             Icons.attach_money,
                             keyboardType: TextInputType.number,
                           ),
@@ -470,22 +471,22 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
                     _buildCategoryDropdown(),
                     const SizedBox(height: 16),
                     _switchTile(
-                      'مميز ⭐',
-                      'يظهر في قسم المميزة',
+                      context.l10n.featuredOptionTitle,
+                      context.l10n.featuredOptionSubtitle,
                       _isFeatured,
                           (v) => setState(() => _isFeatured = v),
                       AppColors.warning,
                     ),
                     _switchTile(
-                      'الأكثر مبيعاً 🔥',
-                      'يظهر في الأكثر مبيعاً',
+                      context.l10n.bestSellerOptionTitle,
+                      context.l10n.bestSellerOptionSubtitle,
                       _isBestSeller,
                           (v) => setState(() => _isBestSeller = v),
                       AppColors.accent,
                     ),
                     _switchTile(
-                      'قابل للتخصيص 🎨',
-                      'يحتوي على أحجام/نكهات',
+                      context.l10n.customizableOptionTitle,
+                      context.l10n.customizableOptionSubtitle,
                       _isCustomizable,
                           (v) => setState(() => _isCustomizable = v),
                       AppColors.info,
@@ -502,6 +503,7 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
   }
 
   Widget _buildFooter() {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
@@ -520,7 +522,7 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text('إلغاء'),
+                  child: Text(context.l10n.cancel),
                 ),
               ),
               const SizedBox(width: 12),
@@ -536,8 +538,8 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
                           strokeWidth: 2, color: Colors.white))
                       : const Icon(Icons.arrow_forward),
                   label: Text(isLoading
-                      ? 'جاري الحفظ...'
-                      : 'حفظ والمتابعة للأحجام'),
+                      ? context.l10n.saveAndContinueSizesLoading
+                      : context.l10n.saveAndNextSizes),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -551,6 +553,7 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
   }
 
   Widget _buildImagePicker() {
+    final l10n = context.l10n;
     return InkWell(
       onTap: _pickImage,
       borderRadius: BorderRadius.circular(12),
@@ -598,11 +601,11 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
         )
             : Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.add_photo_alternate,
+          children: [
+            const Icon(Icons.add_photo_alternate,
                 size: 40, color: AppColors.textHint),
-            SizedBox(height: 8),
-            Text('اضغط لاختيار صورة المنتج *',
+            const SizedBox(height: 8),
+            Text(context.l10n.pickProductImage,
                 style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12)),
@@ -631,12 +634,13 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
         prefixIcon: Icon(icon, color: AppColors.textHint, size: 18),
       ),
       validator: required
-          ? (v) => (v?.isEmpty ?? true) ? 'مطلوب' : null
+          ? (v) => (v?.isEmpty ?? true) ? context.l10n.requiredFieldShort : null
           : null,
     );
   }
 
   Widget _buildCategoryDropdown() {
+    final l10n = context.l10n;
     return BlocBuilder<CategoriesCubit, CategoriesState>(
       builder: (context, state) {
         if (state is CategoriesLoading) {
@@ -656,14 +660,14 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: AppColors.error),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.warning, color: AppColors.error, size: 18),
-                SizedBox(width: 8),
+                const Icon(Icons.warning, color: AppColors.error, size: 18),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'لا توجد فئات. أضف فئة أولاً.',
-                    style: TextStyle(color: AppColors.error, fontSize: 12),
+                    context.l10n.noCategoriesFirst,
+                    style: const TextStyle(color: AppColors.error, fontSize: 12),
                   ),
                 ),
               ],
@@ -676,8 +680,8 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
           initialValue: valid ? _selectedCategoryId : null,
           dropdownColor: AppColors.surfaceLight,
           style: const TextStyle(color: AppColors.textPrimary),
-          decoration: const InputDecoration(
-            labelText: 'الفئة *',
+          decoration: InputDecoration(
+            labelText: context.l10n.categoryField,
             labelStyle: TextStyle(color: AppColors.textSecondary),
             prefixIcon:
             Icon(Icons.category, color: AppColors.textHint, size: 18),
@@ -689,7 +693,7 @@ class _Step1BasicInfoState extends State<_Step1BasicInfo> {
           ))
               .toList(),
           onChanged: (v) => setState(() => _selectedCategoryId = v),
-          validator: (v) => v == null ? 'يجب اختيار فئة' : null,
+          validator: (v) => v == null ? context.l10n.mustChooseCategory : null,
         );
       },
     );
@@ -814,7 +818,7 @@ class _Step2Sizes extends StatelessWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('تم إضافة ${sizes.length} حجم بنجاح'),
+          content: Text(context.l10n.productSizeAddedSuccess(sizes.length)),
           backgroundColor: AppColors.success,
         ),
       );
@@ -834,16 +838,16 @@ class _Step2Sizes extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('الأحجام المتاحة للمنتج',
+                          Text(context.l10n.productSizesTitle,
                               style: TextStyle(
                                   color: AppColors.textPrimary,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16)),
-                          Text('أضف الأحجام مع السعر والأبعاد',
+                          Text(context.l10n.productSizesSubtitle,
                               style: TextStyle(
                                   color: AppColors.textSecondary,
                                   fontSize: 12)),
@@ -853,13 +857,13 @@ class _Step2Sizes extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: () => _openAddSizeDialog(context),
                       icon: const Icon(Icons.add, size: 18),
-                      label: const Text('إضافة حجم'),
+                      label: Text(context.l10n.addSize),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 if (existingSizes.isNotEmpty) ...[
-                  const Text('الأحجام الموجودة:',
+                  Text(context.l10n.existingSizes,
                       style: TextStyle(
                           color: AppColors.textHint, fontSize: 11)),
                   const SizedBox(height: 4),
@@ -877,14 +881,14 @@ class _Step2Sizes extends StatelessWidget {
                         const Icon(Icons.straighten,
                             size: 60, color: AppColors.textHint),
                         const SizedBox(height: 12),
-                        const Text(
-                          'لا توجد أحجام مضافة بعد',
+                          Text(
+                          context.l10n.noSizesAddedYet,
                           style: TextStyle(
                               color: AppColors.textSecondary),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'يمكنك تخطي هذه الخطوة لو المنتج بدون أحجام',
+                          Text(
+                          context.l10n.skipIfNoSizes,
                           style: TextStyle(
                               color: AppColors.textHint,
                               fontSize: 11),
@@ -894,8 +898,8 @@ class _Step2Sizes extends StatelessWidget {
                   )
                       : ListView.builder(
                     itemCount: sizes.length,
-                    itemBuilder: (_, i) =>
-                        _sizeRow(sizes[i], () => onRemoveSize(i)),
+                    itemBuilder: (context, i) =>
+                        _sizeRow(context, sizes[i], () => onRemoveSize(i)),
                   ),
                 ),
               ],
@@ -934,7 +938,11 @@ class _Step2Sizes extends StatelessWidget {
     );
   }
 
-  Widget _sizeRow(_SizeData s, VoidCallback onRemove) {
+  Widget _sizeRow(
+      BuildContext context,
+      _SizeData s,
+      VoidCallback onRemove,
+      ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -980,7 +988,7 @@ class _Step2Sizes extends StatelessWidget {
                       color: AppColors.textHint, fontSize: 11),
                 ),
                 if (s.serves.isNotEmpty)
-                  Text('يخدم: ${s.serves}',
+                  Text('${context.l10n.servesField.split('(').first.trim()}: ${s.serves}',
                       style: const TextStyle(
                           color: AppColors.textHint, fontSize: 11)),
               ],
@@ -997,6 +1005,7 @@ class _Step2Sizes extends StatelessWidget {
   }
 
   Widget _buildFooter(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
@@ -1011,7 +1020,7 @@ class _Step2Sizes extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: isLoading ? null : onBack,
                   icon: const Icon(Icons.arrow_back),
-                  label: const Text('السابق'),
+                  label: Text(context.l10n.previous),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -1031,10 +1040,10 @@ class _Step2Sizes extends StatelessWidget {
                           strokeWidth: 2, color: Colors.white))
                       : const Icon(Icons.arrow_forward),
                   label: Text(isLoading
-                      ? 'جاري حفظ الأحجام...'
+                      ? context.l10n.savingSizes
                       : (sizes.isEmpty
-                      ? 'تخطي للنكهات'
-                      : 'حفظ ${sizes.length} حجم والمتابعة')),
+                      ? context.l10n.skipToFlavors
+                      : context.l10n.saveSizesAndContinue(sizes.length))),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -1141,7 +1150,7 @@ class _AddSizeDialogState extends State<_AddSizeDialog> {
                     const Icon(Icons.straighten,
                         color: AppColors.primary),
                     const SizedBox(width: 8),
-                    const Text('إضافة حجم',
+                    Text(context.l10n.addSize,
                         style: TextStyle(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.bold,
@@ -1175,14 +1184,14 @@ class _AddSizeDialogState extends State<_AddSizeDialog> {
                             child: Image.memory(_imageBytes!,
                                 fit: BoxFit.cover),
                           )
-                              : const Center(
+                              :   Center(
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(Icons.add_photo_alternate,
                                     color: AppColors.textHint),
                                 SizedBox(height: 4),
-                                Text('صورة الحجم (اختياري)',
+                                Text(context.l10n.sizeImageOptional,
                                     style: TextStyle(
                                         color: AppColors.textHint,
                                         fontSize: 11)),
@@ -1194,40 +1203,40 @@ class _AddSizeDialogState extends State<_AddSizeDialog> {
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          Expanded(child: _f(_nameAr, 'الاسم AR *')),
+                          Expanded(child: _f(_nameAr, context.l10n.sizeNameArField)),
                           const SizedBox(width: 8),
-                          Expanded(child: _f(_nameEn, 'Name EN *')),
+                          Expanded(child: _f(_nameEn, context.l10n.sizeNameEnField)),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      _f(_sizeName, 'SizeName (مثل: S/M/L)'),
+                      _f(_sizeName, context.l10n.sizeTokenField),
                       const SizedBox(height: 8),
-                      _f(_descAr, 'الوصف AR', required: false),
+                      _f(_descAr, context.l10n.sizeDescriptionArField, required: false),
                       const SizedBox(height: 8),
-                      _f(_descEn, 'Description EN', required: false),
+                      _f(_descEn, context.l10n.sizeDescriptionEnField, required: false),
                       const SizedBox(height: 8),
-                      _f(_price, 'السعر *',
+                      _f(_price, context.l10n.priceField,
                           keyboardType: TextInputType.number),
                       const SizedBox(height: 8),
                       Row(
                         children: [
                           Expanded(
-                              child: _f(_radius, 'نصف القطر',
+                              child: _f(_radius, context.l10n.radiusField,
                                   keyboardType: TextInputType.number,
                                   required: false)),
                           const SizedBox(width: 8),
                           Expanded(
-                              child: _f(_height, 'الارتفاع',
+                              child: _f(_height, context.l10n.heightField,
                                   keyboardType: TextInputType.number,
                                   required: false)),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      _f(_serves, 'يخدم (مثل: 4-6 أشخاص)',
+                      _f(_serves, context.l10n.servesField,
                           required: false),
                       const SizedBox(height: 8),
                       SwitchListTile(
-                        title: const Text('متاح',
+                        title: Text(context.l10n.availableSwitch,
                             style:
                             TextStyle(color: AppColors.textPrimary)),
                         value: _isAvailable,
@@ -1251,7 +1260,7 @@ class _AddSizeDialogState extends State<_AddSizeDialog> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('إلغاء'),
+                        child: Text(context.l10n.cancel),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -1260,7 +1269,7 @@ class _AddSizeDialogState extends State<_AddSizeDialog> {
                       child: ElevatedButton.icon(
                         onPressed: _save,
                         icon: const Icon(Icons.add, size: 18),
-                        label: const Text('إضافة الحجم'),
+                        label: Text(context.l10n.addSizeAction),
                       ),
                     ),
                   ],
@@ -1286,7 +1295,7 @@ class _AddSizeDialogState extends State<_AddSizeDialog> {
         isDense: true,
       ),
       validator: required
-          ? (v) => (v?.isEmpty ?? true) ? 'مطلوب' : null
+          ? (v) => (v?.isEmpty ?? true) ? context.l10n.requiredFieldShort : null
           : null,
     );
   }
@@ -1365,12 +1374,12 @@ class _Step3Flavors extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text('اختر النكهات المتاحة',
+                  Text(context.l10n.availableFlavorsChooseTitle,
                       style: TextStyle(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.bold,
                           fontSize: 16)),
-                  const Text('حدد النكهات وضع سعر إضافي اختياري',
+                  Text(context.l10n.availableFlavorsChooseSubtitle,
                       style: TextStyle(
                           color: AppColors.textSecondary, fontSize: 12)),
                   const SizedBox(height: 16),
@@ -1387,9 +1396,9 @@ class _Step3Flavors extends StatelessWidget {
                               .where((f) => !f.isArchived)
                               .toList();
                           if (flavors.isEmpty) {
-                            return const Center(
+                            return Center(
                               child: Text(
-                                  'لا توجد نكهات متاحة.\nأضف نكهات أولاً من صفحة النكهات.',
+                                  context.l10n.noFlavorsAvailable,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       color: AppColors.textSecondary)),
@@ -1403,11 +1412,11 @@ class _Step3Flavors extends StatelessWidget {
                                   .indexWhere((s) => s.flavor.id == f.id);
                               final isSelected = selectedIdx >= 0;
                               return _flavorRow(
+                                context,
                                 f,
                                 isSelected,
                                 isSelected
-                                    ? selectedFlavors[selectedIdx]
-                                    .extraPrice
+                                    ? selectedFlavors[selectedIdx].extraPrice
                                     : 0,
                               );
                             },
@@ -1427,7 +1436,12 @@ class _Step3Flavors extends StatelessWidget {
     );
   }
 
-  Widget _flavorRow(FlavorEntity flavor, bool isSelected, double extraPrice) {
+  Widget _flavorRow(
+      BuildContext context,
+      FlavorEntity flavor,
+      bool isSelected,
+      double extraPrice,
+      ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -1485,8 +1499,8 @@ class _Step3Flavors extends StatelessWidget {
                 keyboardType: TextInputType.number,
                 style: const TextStyle(
                     color: AppColors.textPrimary, fontSize: 13),
-                decoration: const InputDecoration(
-                  labelText: 'سعر إضافي',
+                decoration: InputDecoration(
+                  labelText: context.l10n.extraPriceField,
                   labelStyle: TextStyle(
                       color: AppColors.textHint, fontSize: 10),
                   isDense: true,
@@ -1512,6 +1526,7 @@ class _Step3Flavors extends StatelessWidget {
   );
 
   Widget _buildFooter(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
@@ -1526,7 +1541,7 @@ class _Step3Flavors extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: isLoading ? null : onBack,
                   icon: const Icon(Icons.arrow_back),
-                  label: const Text('السابق'),
+                  label: Text(context.l10n.previous),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -1545,10 +1560,10 @@ class _Step3Flavors extends StatelessWidget {
                           strokeWidth: 2, color: Colors.white))
                       : const Icon(Icons.check_circle),
                   label: Text(isLoading
-                      ? 'جاري الحفظ...'
+                      ? context.l10n.saveAndContinueSizesLoading
                       : (selectedFlavors.isEmpty
-                      ? 'إنهاء بدون نكهات'
-                      : 'حفظ ${selectedFlavors.length} نكهة وإنهاء')),
+                      ? context.l10n.finishWithoutFlavors
+                      : context.l10n.saveFlavorsAndFinish(selectedFlavors.length))),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.success,
                     padding: const EdgeInsets.symmetric(vertical: 14),

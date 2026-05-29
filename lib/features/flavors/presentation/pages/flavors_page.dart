@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/dashboard_scaffold.dart';
 import '../../domain/entities/flavor_entity.dart';
@@ -16,7 +17,7 @@ class FlavorsPage extends StatefulWidget {
 
 class _FlavorsPageState extends State<FlavorsPage> {
   String _searchQuery = '';
-  String _filter = 'all'; // all / available / unavailable / archived
+  String _filter = 'all';
 
   @override
   void initState() {
@@ -49,20 +50,23 @@ class _FlavorsPageState extends State<FlavorsPage> {
   }
 
   void _confirmArchive(FlavorEntity flavor) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('تأكيد الأرشفة',
-            style: TextStyle(color: AppColors.textPrimary)),
+        title: Text(
+          l10n.confirmFlavorArchiveTitle,
+          style: const TextStyle(color: AppColors.textPrimary),
+        ),
         content: Text(
-          'هل أنت متأكد من أرشفة نكهة "${flavor.nameAr}"؟',
+          l10n.flavorArchiveMessage(flavor.nameAr),
           style: const TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('إلغاء'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
@@ -70,23 +74,20 @@ class _FlavorsPageState extends State<FlavorsPage> {
               Navigator.of(dialogContext).pop();
               context.read<FlavorsCubit>().archiveFlavor(flavor.id);
             },
-            child: const Text('أرشفة'),
+            child: Text(l10n.archiveAction),
           ),
         ],
       ),
     );
   }
 
-  /// الترتيب: النكهات المتاحة أولاً، ثم غير المتاحة، ثم المؤرشفة
   List<FlavorEntity> _filterAndSort(List<FlavorEntity> items) {
     var list = items;
 
     if (_filter == 'available') {
-      list =
-          list.where((f) => !f.isArchived && f.isAvailable).toList();
+      list = list.where((f) => !f.isArchived && f.isAvailable).toList();
     } else if (_filter == 'unavailable') {
-      list =
-          list.where((f) => !f.isArchived && !f.isAvailable).toList();
+      list = list.where((f) => !f.isArchived && !f.isAvailable).toList();
     } else if (_filter == 'archived') {
       list = list.where((f) => f.isArchived).toList();
     }
@@ -94,26 +95,22 @@ class _FlavorsPageState extends State<FlavorsPage> {
     if (_searchQuery.isNotEmpty) {
       final q = _searchQuery.toLowerCase();
       list = list
-          .where((f) =>
-      f.nameAr.toLowerCase().contains(q) ||
-          f.nameEn.toLowerCase().contains(q))
+          .where((f) => f.nameAr.toLowerCase().contains(q) || f.nameEn.toLowerCase().contains(q))
           .toList();
     }
 
-    // الترتيب: متاح → غير متاح → مؤرشف
-    final available =
-    list.where((f) => !f.isArchived && f.isAvailable).toList();
-    final unavailable =
-    list.where((f) => !f.isArchived && !f.isAvailable).toList();
+    final available = list.where((f) => !f.isArchived && f.isAvailable).toList();
+    final unavailable = list.where((f) => !f.isArchived && !f.isAvailable).toList();
     final archived = list.where((f) => f.isArchived).toList();
     return [...available, ...unavailable, ...archived];
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return DashboardScaffold(
-      pageTitle: 'النكهات',
-      pageSubtitle: 'إدارة نكهات المنتجات',
+      pageTitle: l10n.flavors,
+      pageSubtitle: l10n.flavorsPageSubtitle,
       pageIcon: Icons.local_drink,
       headerAction: BlocBuilder<FlavorsCubit, FlavorsState>(
         buildWhen: (_, c) => c is FlavorsLoaded,
@@ -121,29 +118,25 @@ class _FlavorsPageState extends State<FlavorsPage> {
           int available = 0;
           int archived = 0;
           if (state is FlavorsLoaded) {
-            available = state.flavors.items
-                .where((f) => !f.isArchived && f.isAvailable)
-                .length;
-            archived =
-                state.flavors.items.where((f) => f.isArchived).length;
+            available = state.flavors.items.where((f) => !f.isArchived && f.isAvailable).length;
+            archived = state.flavors.items.where((f) => f.isArchived).length;
           }
           return Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _countBadge('$available متاحة', AppColors.success),
+              _countBadge('$available ${l10n.availableFlavorsLabel}', AppColors.success),
               if (archived > 0) ...[
                 const SizedBox(width: 6),
-                _countBadge('$archived مؤرشفة', AppColors.error),
+                _countBadge('$archived ${l10n.archivedFlavorsLabel}', AppColors.error),
               ],
               const SizedBox(width: 12),
               ElevatedButton.icon(
                 onPressed: _openAddDialog,
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('نكهة جديدة'),
+                label: Text(l10n.newFlavor),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.accent,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
               ),
             ],
@@ -152,33 +145,27 @@ class _FlavorsPageState extends State<FlavorsPage> {
       ),
       floatingActionButton: MediaQuery.of(context).size.width < 700
           ? FloatingActionButton(
-        onPressed: _openAddDialog,
-        backgroundColor: AppColors.accent,
-        child: const Icon(Icons.add),
-      )
+              onPressed: _openAddDialog,
+              backgroundColor: AppColors.accent,
+              child: const Icon(Icons.add),
+            )
           : null,
       body: BlocListener<FlavorsCubit, FlavorsState>(
         listener: (context, state) {
           if (state is FlavorActionSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.success,
-              ),
+              SnackBar(content: Text(state.message), backgroundColor: AppColors.success),
             );
           } else if (state is FlavorActionFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.error,
-              ),
+              SnackBar(content: Text(state.message), backgroundColor: AppColors.error),
             );
           }
         },
         child: Column(
           children: [
-            _buildFiltersBar(),
-            Expanded(child: _buildFlavorsList()),
+            _buildFiltersBar(context),
+            Expanded(child: _buildFlavorsList(context)),
           ],
         ),
       ),
@@ -186,19 +173,17 @@ class _FlavorsPageState extends State<FlavorsPage> {
   }
 
   Widget _countBadge(String text, Color color) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: 0.15),
-      borderRadius: BorderRadius.circular(20),
-    ),
-    child: Text(text,
-        style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.bold,
-            fontSize: 11)),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(text,
+            style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 11)),
+      );
 
-  Widget _buildFiltersBar() {
+  Widget _buildFiltersBar(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -207,11 +192,10 @@ class _FlavorsPageState extends State<FlavorsPage> {
             child: TextField(
               onChanged: (v) => setState(() => _searchQuery = v),
               decoration: InputDecoration(
-                hintText: 'ابحث عن نكهة...',
+                hintText: l10n.searchFlavorHint,
                 prefixIcon: const Icon(Icons.search, size: 20),
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(color: AppColors.border),
@@ -232,16 +216,12 @@ class _FlavorsPageState extends State<FlavorsPage> {
               underline: const SizedBox.shrink(),
               dropdownColor: AppColors.surfaceLight,
               style: const TextStyle(color: AppColors.textPrimary),
-              icon: const Icon(Icons.filter_list,
-                  color: AppColors.textSecondary),
-              items: const [
-                DropdownMenuItem(value: 'all', child: Text('الكل')),
-                DropdownMenuItem(
-                    value: 'available', child: Text('المتاحة')),
-                DropdownMenuItem(
-                    value: 'unavailable', child: Text('غير المتاحة')),
-                DropdownMenuItem(
-                    value: 'archived', child: Text('المؤرشفة')),
+              icon: const Icon(Icons.filter_list, color: AppColors.textSecondary),
+              items: [
+                DropdownMenuItem(value: 'all', child: Text(l10n.allFilter)),
+                DropdownMenuItem(value: 'available', child: Text(l10n.availableFilter)),
+                DropdownMenuItem(value: 'unavailable', child: Text(l10n.unavailableFilter)),
+                DropdownMenuItem(value: 'archived', child: Text(l10n.archivedFilter)),
               ],
               onChanged: (v) => setState(() => _filter = v ?? 'all'),
             ),
@@ -251,7 +231,8 @@ class _FlavorsPageState extends State<FlavorsPage> {
     );
   }
 
-  Widget _buildFlavorsList() {
+  Widget _buildFlavorsList(BuildContext context) {
+    final l10n = context.l10n;
     return BlocBuilder<FlavorsCubit, FlavorsState>(
       buildWhen: (prev, current) {
         if (current is FlavorsLoading && prev is FlavorsLoaded) {
@@ -261,9 +242,7 @@ class _FlavorsPageState extends State<FlavorsPage> {
       },
       builder: (context, state) {
         if (state is FlavorsLoading || state is FlavorsInitial) {
-          return const Center(
-              child:
-              CircularProgressIndicator(color: AppColors.accent));
+          return const Center(child: CircularProgressIndicator(color: AppColors.accent));
         }
 
         if (state is FlavorsFailure) {
@@ -271,17 +250,14 @@ class _FlavorsPageState extends State<FlavorsPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline,
-                    size: 60, color: AppColors.error),
+                const Icon(Icons.error_outline, size: 60, color: AppColors.error),
                 const SizedBox(height: 12),
-                Text(state.message,
-                    style: const TextStyle(color: AppColors.error)),
+                Text(state.message, style: const TextStyle(color: AppColors.error)),
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
-                  onPressed: () =>
-                      context.read<FlavorsCubit>().fetchAllFlavors(),
+                  onPressed: () => context.read<FlavorsCubit>().fetchAllFlavors(),
                   icon: const Icon(Icons.refresh),
-                  label: const Text('إعادة المحاولة'),
+                  label: Text(l10n.retry),
                 ),
               ],
             ),
@@ -296,28 +272,25 @@ class _FlavorsPageState extends State<FlavorsPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.local_drink_outlined,
-                      size: 80, color: AppColors.textHint),
+                  const Icon(Icons.local_drink_outlined, size: 80, color: AppColors.textHint),
                   const SizedBox(height: 12),
                   Text(
                     _searchQuery.isNotEmpty
-                        ? 'لا توجد نتائج مطابقة'
+                        ? l10n.noMatchingResults
                         : (_filter == 'archived'
-                        ? 'لا توجد نكهات مؤرشفة'
-                        : _filter == 'unavailable'
-                        ? 'كل النكهات متاحة 👍'
-                        : 'لا توجد نكهات بعد'),
-                    style: const TextStyle(
-                        color: AppColors.textSecondary, fontSize: 16),
+                            ? l10n.noArchivedFlavors
+                            : _filter == 'unavailable'
+                                ? l10n.allFlavorsAvailableLabel
+                                : l10n.noFlavorsCreated),
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
                   if (_searchQuery.isEmpty && _filter != 'archived')
                     ElevatedButton.icon(
                       onPressed: _openAddDialog,
                       icon: const Icon(Icons.add),
-                      label: const Text('إضافة نكهة جديدة'),
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.accent),
+                      label: Text(l10n.addFlavorAction),
+                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent),
                     ),
                 ],
               ),
@@ -325,8 +298,7 @@ class _FlavorsPageState extends State<FlavorsPage> {
           }
 
           return RefreshIndicator(
-            onRefresh: () =>
-                context.read<FlavorsCubit>().silentRefreshAllFlavors(),
+            onRefresh: () => context.read<FlavorsCubit>().silentRefreshAllFlavors(),
             color: AppColors.accent,
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -347,8 +319,7 @@ class _FlavorsPageState extends State<FlavorsPage> {
 
                   return GridView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    gridDelegate:
-                    SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount,
                       crossAxisSpacing: 14,
                       mainAxisSpacing: 14,
@@ -362,9 +333,7 @@ class _FlavorsPageState extends State<FlavorsPage> {
                         onTap: () => _openEditDialog(f),
                         onEdit: () => _openEditDialog(f),
                         onArchive: () => _confirmArchive(f),
-                        onUnArchive: () => context
-                            .read<FlavorsCubit>()
-                            .unArchiveFlavor(f.id),
+                        onUnArchive: () => context.read<FlavorsCubit>().unArchiveFlavor(f.id),
                       );
                     },
                   );

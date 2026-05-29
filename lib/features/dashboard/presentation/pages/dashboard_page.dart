@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/branch_selection/branch_selection_cubit.dart';
+import '../../../../core/localization/context_localization.dart';
+import '../../../../core/utils/branch_filter_helper.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/auto_refresh_mixin.dart';
 import '../../../../core/widgets/dashboard_scaffold.dart';
 import '../../../categories/presentation/cubit/categories_cubit.dart';
+import '../../../orders/domain/entities/order_entity.dart';
 import '../../../orders/presentation/cubit/orders_cubit.dart';
 import '../../../products/presentation/cubit/products_cubit.dart';
 import '../utils/dashboard_calculations.dart';
@@ -26,12 +30,9 @@ class _DashboardPageState extends State<DashboardPage>
   int _previousOrdersCount = 0;
   bool _isRefreshing = false;
 
-  /// 🔄 polling كل 30 ثانية
   @override
   Duration get refreshInterval => const Duration(seconds: 30);
 
-  /// ⚡ هذي الدالة هتُستدعى تلقائياً كل 30 ثانية
-  /// 🤫 بتستخدم silentRefresh - مفيش رفرفة بصرية!
   @override
   Future<void> onRefresh() async {
     if (!mounted) return;
@@ -43,7 +44,6 @@ class _DashboardPageState extends State<DashboardPage>
 
     if (mounted) setState(() => _isRefreshing = true);
 
-    // 🤫 Silent refresh - بدون رفرفة (parallel للسرعة)
     await Future.wait([
       context.read<OrdersCubit>().silentRefreshAllOrders(),
       context.read<ProductsCubit>().silentRefreshAllProducts(),
@@ -56,7 +56,6 @@ class _DashboardPageState extends State<DashboardPage>
       _isRefreshing = false;
     });
 
-    // نشيك لو فيه طلبات جديدة
     final newState = context.read<OrdersCubit>().state;
     if (newState is OrdersLoaded) {
       final newCount = newState.orders.totalCount;
@@ -67,6 +66,7 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   void _showNewOrderNotification(int count) {
+    final l10n = context.l10n;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: AppColors.primary,
@@ -79,10 +79,12 @@ class _DashboardPageState extends State<DashboardPage>
             Expanded(
               child: Text(
                 count == 1
-                    ? '🎉 طلب جديد وصل!'
-                    : '🎉 $count طلبات جديدة وصلت!',
+                    ? l10n.singleNewOrderArrived
+                    : l10n.multipleNewOrdersArrived(count),
                 style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold),
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -93,6 +95,8 @@ class _DashboardPageState extends State<DashboardPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final branchFilter = context.watch<BranchSelectionCubit>().state;
     final width = MediaQuery.of(context).size.width;
     final isDesktop = width >= 1100;
     final isTablet = width >= 700 && width < 1100;
@@ -107,15 +111,15 @@ class _DashboardPageState extends State<DashboardPage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildWelcomeBanner(isDesktop),
+              _buildWelcomeBanner(context, isDesktop),
               const SizedBox(height: 12),
-              _buildAutoRefreshIndicator(),
+              _buildAutoRefreshIndicator(context),
               const SizedBox(height: 20),
-              _StatsGrid(width: width),
+              _StatsGrid(width: width, branchFilter: branchFilter),
               const SizedBox(height: 20),
-              _buildChartsRow(width),
+              _buildChartsRow(width, branchFilter),
               const SizedBox(height: 20),
-              _buildBottomRow(width),
+              _buildBottomRow(width, branchFilter),
             ],
           ),
         ),
@@ -123,7 +127,8 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
-  Widget _buildAutoRefreshIndicator() {
+  Widget _buildAutoRefreshIndicator(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -135,30 +140,31 @@ class _DashboardPageState extends State<DashboardPage>
         children: [
           _PulsingDot(isActive: _isRefreshing),
           const SizedBox(width: 8),
-          Text(
-            _isRefreshing
-                ? '🔄 جاري التحديث...'
-                : '🟢 التحديث التلقائي مُفعّل',
-            style: TextStyle(
+          Expanded(
+            child: Text(
+              _isRefreshing
+                  ? l10n.autoRefreshingLabel
+                  : l10n.autoRefreshEnabledLabel,
+              style: TextStyle(
                 color: _isRefreshing
                     ? AppColors.primary
                     : AppColors.textSecondary,
                 fontSize: 12,
-                fontWeight: _isRefreshing
-                    ? FontWeight.bold
-                    : FontWeight.normal),
+                fontWeight:
+                    _isRefreshing ? FontWeight.bold : FontWeight.normal,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           const SizedBox(width: 6),
           Text(
-            '(كل ${refreshInterval.inSeconds} ثانية)',
-            style: const TextStyle(
-                color: AppColors.textHint, fontSize: 11),
+            l10n.everySeconds(refreshInterval.inSeconds),
+            style: const TextStyle(color: AppColors.textHint, fontSize: 11),
           ),
           const Spacer(),
           Text(
-            'آخر تحديث: ${_formatTime(_lastRefreshTime)}',
-            style: const TextStyle(
-                color: AppColors.textHint, fontSize: 11),
+            l10n.lastUpdateLabel(_formatTime(_lastRefreshTime)),
+            style: const TextStyle(color: AppColors.textHint, fontSize: 11),
           ),
           const SizedBox(width: 8),
           InkWell(
@@ -166,10 +172,10 @@ class _DashboardPageState extends State<DashboardPage>
               await onRefresh();
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('✅ تم التحديث'),
+                  SnackBar(
+                    content: Text(l10n.updatedSuccessfully),
                     backgroundColor: AppColors.success,
-                    duration: Duration(seconds: 1),
+                    duration: const Duration(seconds: 1),
                   ),
                 );
               }
@@ -181,8 +187,8 @@ class _DashboardPageState extends State<DashboardPage>
                 color: AppColors.primary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: const Icon(Icons.refresh,
-                  color: AppColors.primary, size: 16),
+              child:
+                  const Icon(Icons.refresh, color: AppColors.primary, size: 16),
             ),
           ),
         ],
@@ -197,7 +203,23 @@ class _DashboardPageState extends State<DashboardPage>
     return '$h:$m:$s';
   }
 
-  Widget _buildWelcomeBanner(bool isDesktop) {
+  List<OrderEntity> _applyBranchFilter(
+    List<OrderEntity> orders,
+    BranchSelectionState branchFilter,
+  ) {
+    return orders
+        .where(
+          (order) => BranchFilterHelper.matchesOrder(
+            order,
+            selectedBranchId: branchFilter.selectedBranchId,
+            selectedBranchName: branchFilter.selectedBranchName,
+          ),
+        )
+        .toList();
+  }
+
+  Widget _buildWelcomeBanner(BuildContext context, bool isDesktop) {
+    final l10n = context.l10n;
     final now = DateTime.now();
     final dateStr = _formatDate(now);
 
@@ -212,7 +234,7 @@ class _DashboardPageState extends State<DashboardPage>
         ),
         borderRadius: BorderRadius.circular(16),
         border:
-        Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+            Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -222,8 +244,8 @@ class _DashboardPageState extends State<DashboardPage>
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.dashboard,
-                color: Colors.white, size: 24),
+            child:
+                const Icon(Icons.dashboard, color: Colors.white, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -231,24 +253,20 @@ class _DashboardPageState extends State<DashboardPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'لوحة التحكم',
-                  style: TextStyle(
+                Text(
+                  l10n.dashboardPageTitle,
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
                 ),
-                Row(
-                  children: const [
-                    Flexible(
-                      child: Text('ملخص أعمال اليوم ',
-                          style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 12)),
-                    ),
-                    Text('✨', style: TextStyle(fontSize: 12)),
-                  ],
+                Text(
+                  l10n.dashboardWelcomeSubtitle,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
@@ -266,10 +284,9 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
-  Widget _buildChartsRow(double width) {
+  Widget _buildChartsRow(double width, BranchSelectionState branchFilter) {
     return BlocBuilder<OrdersCubit, OrdersState>(
       buildWhen: (prev, current) {
-        // ما نعيدش rebuild على OrdersLoading لو عندنا بيانات قديمة
         if (current is OrdersLoading && prev is OrdersLoaded) return false;
         return true;
       },
@@ -278,12 +295,19 @@ class _DashboardPageState extends State<DashboardPage>
           return const SizedBox(
             height: 280,
             child: Center(
-                child: CircularProgressIndicator(
-                    color: AppColors.primary)),
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
           );
         }
         if (state is OrdersLoaded) {
-          final calc = DashboardCalculations(state.orders.items, realTotalCount: state.orders.totalCount);
+          final filteredOrders = _applyBranchFilter(
+            (state.orders.items as List).cast<OrderEntity>(),
+            branchFilter,
+          );
+          final calc = DashboardCalculations(
+            filteredOrders,
+            realTotalCount: filteredOrders.length,
+          );
           final isWide = width >= 900;
 
           if (isWide) {
@@ -309,7 +333,7 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
-  Widget _buildBottomRow(double width) {
+  Widget _buildBottomRow(double width, BranchSelectionState branchFilter) {
     return BlocBuilder<OrdersCubit, OrdersState>(
       buildWhen: (prev, current) {
         if (current is OrdersLoading && prev is OrdersLoaded) return false;
@@ -317,9 +341,16 @@ class _DashboardPageState extends State<DashboardPage>
       },
       builder: (context, state) {
         if (state is! OrdersLoaded) {
-          return const RecentOrdersSection();
+          return RecentOrdersSection(branchFilter: branchFilter);
         }
-        final calc = DashboardCalculations(state.orders.items, realTotalCount: state.orders.totalCount);
+        final filteredOrders = _applyBranchFilter(
+          (state.orders.items as List).cast<OrderEntity>(),
+          branchFilter,
+        );
+        final calc = DashboardCalculations(
+          filteredOrders,
+          realTotalCount: filteredOrders.length,
+        );
         final isWide = width >= 900;
 
         if (isWide) {
@@ -328,7 +359,9 @@ class _DashboardPageState extends State<DashboardPage>
             children: [
               Expanded(child: TopProductsChart(calc: calc)),
               const SizedBox(width: 16),
-              const Expanded(child: RecentOrdersSection()),
+              Expanded(
+                child: RecentOrdersSection(branchFilter: branchFilter),
+              ),
             ],
           );
         }
@@ -336,7 +369,7 @@ class _DashboardPageState extends State<DashboardPage>
           children: [
             TopProductsChart(calc: calc),
             const SizedBox(height: 16),
-            const RecentOrdersSection(),
+            RecentOrdersSection(branchFilter: branchFilter),
           ],
         );
       },
@@ -344,39 +377,43 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   String _formatDate(DateTime date) {
-    const days = [
-      'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس',
-      'الجمعة', 'السبت', 'الأحد'
-    ];
-    const months = [
-      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
-    ];
-    return '${days[date.weekday - 1]}، ${date.day} ${months[date.month - 1]} ${date.year}';
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    const daysAr = ['الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد'];
+    const monthsAr = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    const daysEn = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    if (isArabic) {
+      return '${daysAr[date.weekday - 1]}، ${date.day} ${monthsAr[date.month - 1]} ${date.year}';
+    }
+    return '${daysEn[date.weekday - 1]}, ${monthsEn[date.month - 1]} ${date.day}, ${date.year}';
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// 📊 Stats Grid - widget منفصل بحيث كل BlocBuilder يتعامل مع cubit واحد
-// عشان كل cubit يقدر يعمل rebuild مستقل لما بياناته تتغير
-// ═══════════════════════════════════════════════════════════
 class _StatsGrid extends StatelessWidget {
   final double width;
-  const _StatsGrid({required this.width});
+  final BranchSelectionState branchFilter;
+  const _StatsGrid({required this.width, required this.branchFilter});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     int crossAxisCount;
+    double childAspectRatio;
     if (width >= 1400) {
       crossAxisCount = 6;
+      childAspectRatio = 1.5;
     } else if (width >= 1100) {
       crossAxisCount = 4;
+      childAspectRatio = 1.45;
     } else if (width >= 700) {
       crossAxisCount = 3;
+      childAspectRatio = 1.25;
     } else if (width >= 480) {
       crossAxisCount = 2;
+      childAspectRatio = 1.08;
     } else {
       crossAxisCount = 1;
+      childAspectRatio = 2.6;
     }
 
     return GridView.count(
@@ -385,9 +422,8 @@ class _StatsGrid extends StatelessWidget {
       crossAxisCount: crossAxisCount,
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
-      childAspectRatio: crossAxisCount == 1 ? 3.2 : 1.5,
+      childAspectRatio: childAspectRatio,
       children: [
-        // 4 stats من Orders (BlocBuilder خاص بـ Orders بس)
         BlocBuilder<OrdersCubit, OrdersState>(
           buildWhen: (prev, current) {
             if (current is OrdersLoading && prev is OrdersLoaded) {
@@ -397,13 +433,30 @@ class _StatsGrid extends StatelessWidget {
           },
           builder: (context, state) {
             final calc = state is OrdersLoaded
-                ? DashboardCalculations(state.orders.items, realTotalCount: state.orders.totalCount)
+                ? DashboardCalculations(
+                    (state.orders.items as List)
+                        .cast<OrderEntity>()
+                        .where((order) => BranchFilterHelper.matchesOrder(
+                              order,
+                              selectedBranchId: branchFilter.selectedBranchId,
+                              selectedBranchName: branchFilter.selectedBranchName,
+                            ))
+                        .toList(),
+                    realTotalCount: (state.orders.items as List)
+                        .cast<OrderEntity>()
+                        .where((order) => BranchFilterHelper.matchesOrder(
+                              order,
+                              selectedBranchId: branchFilter.selectedBranchId,
+                              selectedBranchName: branchFilter.selectedBranchName,
+                            ))
+                        .length,
+                  )
                 : null;
             return StatCard(
-              title: 'إجمالي الطلبات',
+              title: l10n.totalOrdersLabel,
               value: '${calc?.totalOrdersCount ?? 0}',
               subtitle:
-              'منها ${calc?.deliveredOrdersCount ?? 0} مكتمل',
+                  '${l10n.completedOrdersLabel} ${calc?.deliveredOrdersCount ?? 0}',
               icon: Icons.shopping_cart,
               color: AppColors.primary,
             );
@@ -418,12 +471,29 @@ class _StatsGrid extends StatelessWidget {
           },
           builder: (context, state) {
             final calc = state is OrdersLoaded
-                ? DashboardCalculations(state.orders.items, realTotalCount: state.orders.totalCount)
+                ? DashboardCalculations(
+                    (state.orders.items as List)
+                        .cast<OrderEntity>()
+                        .where((order) => BranchFilterHelper.matchesOrder(
+                              order,
+                              selectedBranchId: branchFilter.selectedBranchId,
+                              selectedBranchName: branchFilter.selectedBranchName,
+                            ))
+                        .toList(),
+                    realTotalCount: (state.orders.items as List)
+                        .cast<OrderEntity>()
+                        .where((order) => BranchFilterHelper.matchesOrder(
+                              order,
+                              selectedBranchId: branchFilter.selectedBranchId,
+                              selectedBranchName: branchFilter.selectedBranchName,
+                            ))
+                        .length,
+                  )
                 : null;
             return StatCard(
-              title: 'إجمالي الإيرادات',
+              title: l10n.totalRevenueLabel,
               value: 'L.E ${_formatNumber(calc?.totalRevenue ?? 0)}',
-              subtitle: 'كل الفترات',
+              subtitle: l10n.allPeriodsLabel,
               icon: Icons.attach_money,
               color: AppColors.success,
             );
@@ -438,12 +508,29 @@ class _StatsGrid extends StatelessWidget {
           },
           builder: (context, state) {
             final calc = state is OrdersLoaded
-                ? DashboardCalculations(state.orders.items, realTotalCount: state.orders.totalCount)
+                ? DashboardCalculations(
+                    (state.orders.items as List)
+                        .cast<OrderEntity>()
+                        .where((order) => BranchFilterHelper.matchesOrder(
+                              order,
+                              selectedBranchId: branchFilter.selectedBranchId,
+                              selectedBranchName: branchFilter.selectedBranchName,
+                            ))
+                        .toList(),
+                    realTotalCount: (state.orders.items as List)
+                        .cast<OrderEntity>()
+                        .where((order) => BranchFilterHelper.matchesOrder(
+                              order,
+                              selectedBranchId: branchFilter.selectedBranchId,
+                              selectedBranchName: branchFilter.selectedBranchName,
+                            ))
+                        .length,
+                  )
                 : null;
             return StatCard(
-              title: 'مبيعات الأسبوع',
+              title: l10n.weeklySalesLabel,
               value: 'L.E ${_formatNumber(calc?.weekRevenue ?? 0)}',
-              subtitle: 'آخر 7 أيام',
+              subtitle: l10n.last7DaysLabel,
               icon: Icons.trending_up,
               color: AppColors.info,
             );
@@ -458,19 +545,34 @@ class _StatsGrid extends StatelessWidget {
           },
           builder: (context, state) {
             final calc = state is OrdersLoaded
-                ? DashboardCalculations(state.orders.items, realTotalCount: state.orders.totalCount)
+                ? DashboardCalculations(
+                    (state.orders.items as List)
+                        .cast<OrderEntity>()
+                        .where((order) => BranchFilterHelper.matchesOrder(
+                              order,
+                              selectedBranchId: branchFilter.selectedBranchId,
+                              selectedBranchName: branchFilter.selectedBranchName,
+                            ))
+                        .toList(),
+                    realTotalCount: (state.orders.items as List)
+                        .cast<OrderEntity>()
+                        .where((order) => BranchFilterHelper.matchesOrder(
+                              order,
+                              selectedBranchId: branchFilter.selectedBranchId,
+                              selectedBranchName: branchFilter.selectedBranchName,
+                            ))
+                        .length,
+                  )
                 : null;
             return StatCard(
-              title: 'متوسط قيمة الطلب',
-              value:
-              'L.E ${_formatNumber(calc?.averageOrderValue ?? 0)}',
-              subtitle: 'من ${calc?.totalOrdersCount ?? 0} طلب',
+              title: l10n.averageOrderValueKpi,
+              value: 'L.E ${_formatNumber(calc?.averageOrderValue ?? 0)}',
+              subtitle: '${calc?.totalOrdersCount ?? 0} ${l10n.ordersCountWord}',
               icon: Icons.shopping_bag,
               color: AppColors.accent,
             );
           },
         ),
-        // Products - مستقل
         BlocBuilder<ProductsCubit, ProductsState>(
           buildWhen: (prev, current) {
             if (current is ProductsLoading && prev is ProductsLoaded) {
@@ -479,35 +581,29 @@ class _StatsGrid extends StatelessWidget {
             return true;
           },
           builder: (context, state) {
-            final count = state is ProductsLoaded
-                ? state.products.totalCount
-                : 0;
+            final count = state is ProductsLoaded ? state.products.totalCount : 0;
             return StatCard(
-              title: 'المنتجات',
+              title: l10n.products,
               value: '$count',
-              subtitle: 'منتج متاح',
+              subtitle: l10n.availableProductsLabel,
               icon: Icons.cake,
               color: AppColors.warning,
             );
           },
         ),
-        // Categories - مستقل
         BlocBuilder<CategoriesCubit, CategoriesState>(
           buildWhen: (prev, current) {
-            if (current is CategoriesLoading &&
-                prev is CategoriesLoaded) {
+            if (current is CategoriesLoading && prev is CategoriesLoaded) {
               return false;
             }
             return true;
           },
           builder: (context, state) {
-            final count = state is CategoriesLoaded
-                ? state.categories.totalCount
-                : 0;
+            final count = state is CategoriesLoaded ? state.categories.totalCount : 0;
             return StatCard(
-              title: 'الفئات',
+              title: l10n.categories,
               value: '$count',
-              subtitle: 'فئة',
+              subtitle: l10n.categoriesCountLabel,
               icon: Icons.category,
               color: AppColors.info,
             );
@@ -524,9 +620,6 @@ class _StatsGrid extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// 🟢 Pulsing dot - بيومض لما يحصل refresh
-// ═══════════════════════════════════════════════════════════
 class _PulsingDot extends StatefulWidget {
   final bool isActive;
   const _PulsingDot({required this.isActive});
@@ -559,12 +652,8 @@ class _PulsingDotState extends State<_PulsingDot>
     return AnimatedBuilder(
       animation: _controller,
       builder: (_, __) {
-        final scale = widget.isActive
-            ? 1.0 + (_controller.value * 0.5)
-            : 1.0;
-        final color = widget.isActive
-            ? AppColors.primary
-            : AppColors.success;
+        final scale = widget.isActive ? 1.0 + (_controller.value * 0.5) : 1.0;
+        final color = widget.isActive ? AppColors.primary : AppColors.success;
         return Container(
           width: 8 * scale,
           height: 8 * scale,
@@ -573,12 +662,12 @@ class _PulsingDotState extends State<_PulsingDot>
             shape: BoxShape.circle,
             boxShadow: widget.isActive
                 ? [
-              BoxShadow(
-                color: color.withValues(alpha: 0.5),
-                blurRadius: 6 * _controller.value,
-                spreadRadius: 2 * _controller.value,
-              ),
-            ]
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.5),
+                      blurRadius: 6 * _controller.value,
+                      spreadRadius: 2 * _controller.value,
+                    ),
+                  ]
                 : null,
           ),
         );

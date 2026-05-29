@@ -10,17 +10,50 @@ class DashboardCalculations {
 
   DashboardCalculations(this.allOrders, {this.realTotalCount});
 
+  String _normalizedStatusName(OrderEntity order) =>
+      order.statusName.trim().toLowerCase();
+
+  bool _isDelivered(OrderEntity order) {
+    final statusName = _normalizedStatusName(order);
+    return statusName == 'delivered' ||
+        statusName == 'completed' ||
+        statusName == 'complete' ||
+        statusName == 'تم التوصيل' ||
+        statusName == 'مكتمل';
+  }
+
+  bool _isCancelled(OrderEntity order) {
+    final statusName = _normalizedStatusName(order);
+    return statusName == 'cancelled' ||
+        statusName == 'canceled' ||
+        statusName == 'ملغي';
+  }
+
+  bool _isPending(OrderEntity order) =>
+      _normalizedStatusName(order) == 'pending' || order.status == 0;
+
+  bool _isConfirmed(OrderEntity order) =>
+      _normalizedStatusName(order) == 'confirmed' || order.status == 1;
+
+  bool _isPreparing(OrderEntity order) =>
+      _normalizedStatusName(order) == 'preparing' || order.status == 2;
+
+  bool _isOutForDelivery(OrderEntity order) {
+    final statusName = _normalizedStatusName(order);
+    return statusName == 'outfordelivery' ||
+        statusName == 'out_for_delivery' ||
+        statusName == 'في الطريق';
+  }
+
   /// 🎯 العدد الكلي: من الـ API لو متوفر، غير كده من اللست
   int get totalOrdersCount => realTotalCount ?? allOrders.length;
 
-  int get deliveredOrdersCount =>
-      allOrders.where((o) => o.status == 4).length;
+  int get deliveredOrdersCount => allOrders.where(_isDelivered).length;
 
   int get inProgressOrdersCount =>
-      allOrders.where((o) => o.status >= 0 && o.status <= 3).length;
+      allOrders.where((o) => !_isDelivered(o) && !_isCancelled(o)).length;
 
-  int get cancelledOrdersCount =>
-      allOrders.where((o) => o.status == 5).length;
+  int get cancelledOrdersCount => allOrders.where(_isCancelled).length;
 
   double get totalRevenue =>
       allOrders.fold(0.0, (sum, o) => sum + o.totalAmount);
@@ -29,9 +62,9 @@ class DashboardCalculations {
     final today = DateTime.now();
     return allOrders
         .where((o) =>
-    o.createdDateTime.year == today.year &&
-        o.createdDateTime.month == today.month &&
-        o.createdDateTime.day == today.day)
+            o.createdDateTime.year == today.year &&
+            o.createdDateTime.month == today.month &&
+            o.createdDateTime.day == today.day)
         .fold(0.0, (sum, o) => sum + o.totalAmount);
   }
 
@@ -39,9 +72,9 @@ class DashboardCalculations {
     final today = DateTime.now();
     return allOrders
         .where((o) =>
-    o.createdDateTime.year == today.year &&
-        o.createdDateTime.month == today.month &&
-        o.createdDateTime.day == today.day)
+            o.createdDateTime.year == today.year &&
+            o.createdDateTime.month == today.month &&
+            o.createdDateTime.day == today.day)
         .length;
   }
 
@@ -69,13 +102,13 @@ class DashboardCalculations {
     final now = DateTime.now();
 
     for (int i = 6; i >= 0; i--) {
-      final day = DateTime(now.year, now.month, now.day)
-          .subtract(Duration(days: i));
+      final day =
+          DateTime(now.year, now.month, now.day).subtract(Duration(days: i));
       final revenue = allOrders
           .where((o) =>
-      o.createdDateTime.year == day.year &&
-          o.createdDateTime.month == day.month &&
-          o.createdDateTime.day == day.day)
+              o.createdDateTime.year == day.year &&
+              o.createdDateTime.month == day.month &&
+              o.createdDateTime.day == day.day)
           .fold(0.0, (sum, o) => sum + o.totalAmount);
       result.add(MapEntry(day, revenue));
     }
@@ -84,12 +117,12 @@ class DashboardCalculations {
 
   Map<String, int> getOrdersStatusBreakdown() {
     return {
-      'قيد الانتظار': allOrders.where((o) => o.status == 0).length,
-      'مؤكد': allOrders.where((o) => o.status == 1).length,
-      'قيد التحضير': allOrders.where((o) => o.status == 2).length,
-      'في الطريق': allOrders.where((o) => o.status == 3).length,
-      'تم التوصيل': allOrders.where((o) => o.status == 4).length,
-      'ملغي': allOrders.where((o) => o.status == 5).length,
+      'قيد الانتظار': allOrders.where(_isPending).length,
+      'مؤكد': allOrders.where(_isConfirmed).length,
+      'قيد التحضير': allOrders.where(_isPreparing).length,
+      'في الطريق': allOrders.where(_isOutForDelivery).length,
+      'تم التوصيل': allOrders.where(_isDelivered).length,
+      'ملغي': allOrders.where(_isCancelled).length,
     };
   }
 
@@ -101,7 +134,7 @@ class DashboardCalculations {
         final name = item.productNameAr ?? '⚠️ منتج محذوف';
         productSales.update(
           name,
-              (count) => count + item.quantity,
+          (count) => count + item.quantity,
           ifAbsent: () => item.quantity,
         );
       }

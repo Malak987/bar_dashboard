@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/dashboard_scaffold.dart';
 import '../../domain/entities/category_entity.dart';
@@ -49,21 +50,23 @@ class _CategoriesPageState extends State<CategoriesPage> {
   }
 
   void _confirmArchive(CategoryEntity category) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('تأكيد الأرشفة',
-            style: TextStyle(color: AppColors.textPrimary)),
+        title: Text(
+          l10n.confirmArchiveTitle,
+          style: const TextStyle(color: AppColors.textPrimary),
+        ),
         content: Text(
-          'هل أنت متأكد من أرشفة فئة "${category.nameAr}"؟\n'
-              'عدد المنتجات بها: ${category.productsCount}',
+          l10n.categoryArchiveMessage(category.nameAr, category.productsCount),
           style: const TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('إلغاء'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
@@ -71,7 +74,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
               Navigator.of(dialogContext).pop();
               context.read<CategoriesCubit>().archiveCategory(category.id);
             },
-            child: const Text('أرشفة'),
+            child: Text(l10n.archiveAction),
           ),
         ],
       ),
@@ -89,8 +92,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
       final q = _searchQuery.toLowerCase();
       list = list
           .where((c) =>
-      c.nameAr.toLowerCase().contains(q) ||
-          c.nameEn.toLowerCase().contains(q))
+              c.nameAr.toLowerCase().contains(q) ||
+              c.nameEn.toLowerCase().contains(q))
           .toList();
     }
     return list;
@@ -98,9 +101,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return DashboardScaffold(
-      pageTitle: 'الفئات',
-      pageSubtitle: 'تنظيم منتجاتك في فئات',
+      pageTitle: l10n.categories,
+      pageSubtitle: l10n.categoriesPageSubtitle,
       pageIcon: Icons.category,
       headerAction: BlocBuilder<CategoriesCubit, CategoriesState>(
         builder: (context, state) {
@@ -109,28 +113,27 @@ class _CategoriesPageState extends State<CategoriesPage> {
             children: [
               if (state is CategoriesLoaded)
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    '${state.categories.totalCount} فئة',
+                    '${state.categories.totalCount} ${l10n.categoriesCountLabel}',
                     style: const TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12),
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               const SizedBox(width: 12),
               ElevatedButton.icon(
                 onPressed: _openAddDialog,
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('فئة جديدة'),
+                label: Text(l10n.newCategory),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
               ),
             ],
@@ -139,10 +142,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
       ),
       floatingActionButton: MediaQuery.of(context).size.width < 700
           ? FloatingActionButton(
-        onPressed: _openAddDialog,
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add),
-      )
+              onPressed: _openAddDialog,
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.add),
+            )
           : null,
       body: BlocListener<CategoriesCubit, CategoriesState>(
         listener: (context, state) {
@@ -164,15 +167,16 @@ class _CategoriesPageState extends State<CategoriesPage> {
         },
         child: Column(
           children: [
-            _buildFiltersBar(),
-            Expanded(child: _buildCategoriesList()),
+            _buildFiltersBar(context),
+            Expanded(child: _buildCategoriesList(context)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFiltersBar() {
+  Widget _buildFiltersBar(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -181,11 +185,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
             child: TextField(
               onChanged: (v) => setState(() => _searchQuery = v),
               decoration: InputDecoration(
-                hintText: 'ابحث عن فئة...',
+                hintText: l10n.searchCategoryHint,
                 prefixIcon: const Icon(Icons.search, size: 20),
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(color: AppColors.border),
@@ -206,13 +209,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
               underline: const SizedBox.shrink(),
               dropdownColor: AppColors.surfaceLight,
               style: const TextStyle(color: AppColors.textPrimary),
-              icon: const Icon(Icons.filter_list,
-                  color: AppColors.textSecondary),
-              items: const [
-                DropdownMenuItem(value: 'all', child: Text('الكل')),
-                DropdownMenuItem(value: 'active', child: Text('النشطة')),
-                DropdownMenuItem(
-                    value: 'archived', child: Text('المؤرشفة')),
+              icon: const Icon(Icons.filter_list, color: AppColors.textSecondary),
+              items: [
+                DropdownMenuItem(value: 'all', child: Text(l10n.allFilter)),
+                DropdownMenuItem(value: 'active', child: Text(l10n.activeCategoriesFilter)),
+                DropdownMenuItem(value: 'archived', child: Text(l10n.archivedCategoriesFilter)),
               ],
               onChanged: (v) => setState(() => _filter = v ?? 'all'),
             ),
@@ -222,13 +223,14 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
-  Widget _buildCategoriesList() {
+  Widget _buildCategoriesList(BuildContext context) {
+    final l10n = context.l10n;
     return BlocBuilder<CategoriesCubit, CategoriesState>(
       builder: (context, state) {
         if (state is CategoriesLoading || state is CategoriesInitial) {
           return const Center(
-              child:
-              CircularProgressIndicator(color: AppColors.primary));
+            child: CircularProgressIndicator(color: AppColors.primary),
+          );
         }
 
         if (state is CategoriesFailure) {
@@ -236,17 +238,14 @@ class _CategoriesPageState extends State<CategoriesPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline,
-                    size: 60, color: AppColors.error),
+                const Icon(Icons.error_outline, size: 60, color: AppColors.error),
                 const SizedBox(height: 12),
-                Text(state.message,
-                    style: const TextStyle(color: AppColors.error)),
+                Text(state.message, style: const TextStyle(color: AppColors.error)),
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
-                  onPressed: () =>
-                      context.read<CategoriesCubit>().fetchAllCategories(),
+                  onPressed: () => context.read<CategoriesCubit>().fetchAllCategories(),
                   icon: const Icon(Icons.refresh),
-                  label: const Text('إعادة المحاولة'),
+                  label: Text(l10n.retry),
                 ),
               ],
             ),
@@ -261,24 +260,22 @@ class _CategoriesPageState extends State<CategoriesPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.category_outlined,
-                      size: 80, color: AppColors.textHint),
+                  const Icon(Icons.category_outlined, size: 80, color: AppColors.textHint),
                   const SizedBox(height: 12),
                   Text(
                     _searchQuery.isNotEmpty
-                        ? 'لا توجد نتائج مطابقة'
+                        ? l10n.noMatchingResults
                         : (_filter == 'archived'
-                        ? 'لا توجد فئات مؤرشفة'
-                        : 'لا توجد فئات بعد'),
-                    style: const TextStyle(
-                        color: AppColors.textSecondary, fontSize: 16),
+                            ? l10n.noArchivedCategories
+                            : l10n.noCategoriesAvailable),
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
                   if (_searchQuery.isEmpty)
                     ElevatedButton.icon(
                       onPressed: _openAddDialog,
                       icon: const Icon(Icons.add),
-                      label: const Text('إضافة فئة جديدة'),
+                      label: Text(l10n.newCategory),
                     ),
                 ],
               ),
@@ -286,8 +283,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
           }
 
           return RefreshIndicator(
-            onRefresh: () =>
-                context.read<CategoriesCubit>().fetchAllCategories(),
+            onRefresh: () => context.read<CategoriesCubit>().fetchAllCategories(),
             color: AppColors.primary,
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -308,8 +304,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
                   return GridView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    gridDelegate:
-                    SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount,
                       crossAxisSpacing: 14,
                       mainAxisSpacing: 14,
@@ -323,9 +318,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                         onTap: () => _openEditDialog(c),
                         onEdit: () => _openEditDialog(c),
                         onArchive: () => _confirmArchive(c),
-                        onUnArchive: () => context
-                            .read<CategoriesCubit>()
-                            .unArchiveCategory(c.id),
+                        onUnArchive: () => context.read<CategoriesCubit>().unArchiveCategory(c.id),
                       );
                     },
                   );

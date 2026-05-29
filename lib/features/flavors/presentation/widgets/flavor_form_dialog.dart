@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/multipart_helper.dart';
 import '../../domain/entities/flavor_entity.dart';
@@ -52,8 +53,7 @@ class _FlavorFormDialogState extends State<FlavorFormDialog> {
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final image = await picker.pickImage(
-        source: ImageSource.gallery, imageQuality: 80);
+    final image = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
     if (image != null) {
       final bytes = await image.readAsBytes();
       setState(() {
@@ -68,8 +68,7 @@ class _FlavorFormDialogState extends State<FlavorFormDialog> {
 
     final cubit = context.read<FlavorsCubit>();
     final multipartImage = _pickedImageBytes != null
-        ? MultipartHelper.bytesToMultipart(
-        _pickedImageBytes!, _pickedImageName ?? 'flavor.png')
+        ? MultipartHelper.bytesToMultipart(_pickedImageBytes!, _pickedImageName ?? 'flavor.png')
         : null;
 
     if (isEdit) {
@@ -96,22 +95,17 @@ class _FlavorFormDialogState extends State<FlavorFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return BlocListener<FlavorsCubit, FlavorsState>(
       listener: (context, state) {
         if (state is FlavorActionSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.success,
-            ),
+            SnackBar(content: Text(state.message), backgroundColor: AppColors.success),
           );
           Navigator.of(context).pop();
         } else if (state is FlavorActionFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.error,
-            ),
+            SnackBar(content: Text(state.message), backgroundColor: AppColors.error),
           );
         }
       },
@@ -125,20 +119,17 @@ class _FlavorFormDialogState extends State<FlavorFormDialog> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Header
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: const BoxDecoration(
-                    border: Border(
-                        bottom: BorderSide(color: AppColors.border)),
+                    border: Border(bottom: BorderSide(color: AppColors.border)),
                   ),
                   child: Row(
                     children: [
-                      Icon(isEdit ? Icons.edit : Icons.add_circle,
-                          color: AppColors.accent),
+                      Icon(isEdit ? Icons.edit : Icons.add_circle, color: AppColors.accent),
                       const SizedBox(width: 8),
                       Text(
-                        isEdit ? 'تعديل نكهة' : 'إضافة نكهة جديدة',
+                        isEdit ? l10n.editFlavorTitle : l10n.addFlavorTitle,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -147,53 +138,43 @@ class _FlavorFormDialogState extends State<FlavorFormDialog> {
                       ),
                       const Spacer(),
                       IconButton(
-                        icon: const Icon(Icons.close,
-                            color: AppColors.textSecondary),
+                        icon: const Icon(Icons.close, color: AppColors.textSecondary),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                     ],
                   ),
                 ),
-                // Body
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _buildImagePicker(),
+                        _buildImagePicker(context),
                         const SizedBox(height: 16),
                         Row(
                           children: [
                             Expanded(
                               child: TextFormField(
                                 controller: _nameArController,
-                                style: const TextStyle(
-                                    color: AppColors.textPrimary),
-                                decoration: const InputDecoration(
-                                  labelText: 'الاسم بالعربية *',
-                                  prefixIcon:
-                                  Icon(Icons.text_fields, size: 18),
+                                style: const TextStyle(color: AppColors.textPrimary),
+                                decoration: InputDecoration(
+                                  labelText: l10n.nameArField,
+                                  prefixIcon: const Icon(Icons.text_fields, size: 18),
                                 ),
-                                validator: (v) =>
-                                (v?.isEmpty ?? true) ? 'مطلوب' : null,
+                                validator: (v) => (v?.isEmpty ?? true) ? l10n.requiredFieldShort : null,
                               ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: TextFormField(
                                 controller: _nameEnController,
-                                style: const TextStyle(
-                                    color: AppColors.textPrimary),
-                                decoration: const InputDecoration(
-                                  labelText: 'Name (English) *',
-                                  prefixIcon:
-                                  Icon(Icons.text_fields, size: 18),
+                                style: const TextStyle(color: AppColors.textPrimary),
+                                decoration: InputDecoration(
+                                  labelText: l10n.nameEnField,
+                                  prefixIcon: const Icon(Icons.text_fields, size: 18),
                                 ),
-                                validator: (v) =>
-                                (v?.isEmpty ?? true)
-                                    ? 'Required'
-                                    : null,
+                                validator: (v) => (v?.isEmpty ?? true) ? l10n.requiredFieldShort : null,
                               ),
                             ),
                           ],
@@ -202,52 +183,46 @@ class _FlavorFormDialogState extends State<FlavorFormDialog> {
                         TextFormField(
                           controller: _descArController,
                           maxLines: 2,
-                          style: const TextStyle(
-                              color: AppColors.textPrimary),
-                          decoration: const InputDecoration(
-                            labelText: 'الوصف بالعربية *',
-                            prefixIcon:
-                            Icon(Icons.description, size: 18),
+                          style: const TextStyle(color: AppColors.textPrimary),
+                          decoration: InputDecoration(
+                            labelText: l10n.descriptionArField,
+                            prefixIcon: const Icon(Icons.description, size: 18),
                           ),
-                          validator: (v) =>
-                          (v?.isEmpty ?? true) ? 'مطلوب' : null,
+                          validator: (v) => (v?.isEmpty ?? true) ? l10n.requiredFieldShort : null,
                         ),
                         const SizedBox(height: 12),
                         TextFormField(
                           controller: _descEnController,
                           maxLines: 2,
-                          style: const TextStyle(
-                              color: AppColors.textPrimary),
-                          decoration: const InputDecoration(
-                            labelText: 'Description (English) *',
-                            prefixIcon:
-                            Icon(Icons.description, size: 18),
+                          style: const TextStyle(color: AppColors.textPrimary),
+                          decoration: InputDecoration(
+                            labelText: l10n.descriptionEnField,
+                            prefixIcon: const Icon(Icons.description, size: 18),
                           ),
-                          validator: (v) =>
-                          (v?.isEmpty ?? true) ? 'Required' : null,
+                          validator: (v) => (v?.isEmpty ?? true) ? l10n.requiredFieldShort : null,
                         ),
                         const SizedBox(height: 12),
-                        // Available switch
                         Container(
                           decoration: BoxDecoration(
                             color: AppColors.surfaceLight,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: SwitchListTile(
-                            title: const Text('متاحة للاختيار ✓',
-                                style: TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14)),
-                            subtitle: const Text(
-                                'العملاء يقدروا يختاروا النكهة دي',
-                                style: TextStyle(
-                                    color: AppColors.textHint,
-                                    fontSize: 11)),
+                            title: Text(
+                              l10n.availableForSelectionTitle,
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            subtitle: Text(
+                              l10n.availableForSelectionSubtitle,
+                              style: const TextStyle(color: AppColors.textHint, fontSize: 11),
+                            ),
                             value: _isAvailable,
                             activeColor: AppColors.success,
-                            onChanged: (v) =>
-                                setState(() => _isAvailable = v),
+                            onChanged: (v) => setState(() => _isAvailable = v),
                             dense: true,
                           ),
                         ),
@@ -255,12 +230,10 @@ class _FlavorFormDialogState extends State<FlavorFormDialog> {
                     ),
                   ),
                 ),
-                // Footer
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: const BoxDecoration(
-                    border:
-                    Border(top: BorderSide(color: AppColors.border)),
+                    border: Border(top: BorderSide(color: AppColors.border)),
                   ),
                   child: BlocBuilder<FlavorsCubit, FlavorsState>(
                     builder: (context, state) {
@@ -269,14 +242,9 @@ class _FlavorFormDialogState extends State<FlavorFormDialog> {
                         children: [
                           Expanded(
                             child: OutlinedButton(
-                              onPressed: isLoading
-                                  ? null
-                                  : () => Navigator.of(context).pop(),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 14),
-                              ),
-                              child: const Text('إلغاء'),
+                              onPressed: isLoading ? null : () => Navigator.of(context).pop(),
+                              style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                              child: Text(l10n.cancel),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -285,24 +253,12 @@ class _FlavorFormDialogState extends State<FlavorFormDialog> {
                             child: ElevatedButton.icon(
                               onPressed: isLoading ? null : _submit,
                               icon: isLoading
-                                  ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white))
-                                  : Icon(isEdit
-                                  ? Icons.save
-                                  : Icons.add_circle),
-                              label: Text(isLoading
-                                  ? 'جاري...'
-                                  : (isEdit
-                                  ? 'حفظ التعديلات'
-                                  : 'إضافة النكهة')),
+                                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                  : Icon(isEdit ? Icons.save : Icons.add_circle),
+                              label: Text(isLoading ? l10n.saving : (isEdit ? l10n.saveFlavorChanges : l10n.addFlavorButton)),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.accent,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 14),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
                               ),
                             ),
                           ),
@@ -319,7 +275,8 @@ class _FlavorFormDialogState extends State<FlavorFormDialog> {
     );
   }
 
-  Widget _buildImagePicker() {
+  Widget _buildImagePicker(BuildContext context) {
+    final l10n = context.l10n;
     return InkWell(
       onTap: _pickImage,
       borderRadius: BorderRadius.circular(12),
@@ -332,81 +289,73 @@ class _FlavorFormDialogState extends State<FlavorFormDialog> {
         ),
         child: _pickedImageBytes != null
             ? Stack(
-          fit: StackFit.expand,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.memory(_pickedImageBytes!,
-                  fit: BoxFit.cover),
-            ),
-            Positioned(
-              top: 8,
-              right: 8,
-              child: CircleAvatar(
-                backgroundColor: AppColors.error,
-                radius: 16,
-                child: IconButton(
-                  icon: const Icon(Icons.close,
-                      size: 16, color: Colors.white),
-                  onPressed: () => setState(() {
-                    _pickedImageBytes = null;
-                    _pickedImageName = null;
-                  }),
-                ),
-              ),
-            ),
-          ],
-        )
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.memory(_pickedImageBytes!, fit: BoxFit.cover),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: CircleAvatar(
+                      backgroundColor: AppColors.error,
+                      radius: 16,
+                      child: IconButton(
+                        icon: const Icon(Icons.close, size: 16, color: Colors.white),
+                        onPressed: () => setState(() {
+                          _pickedImageBytes = null;
+                          _pickedImageName = null;
+                        }),
+                      ),
+                    ),
+                  ),
+                ],
+              )
             : (isEdit && widget.flavor?.fullImageUrl != null
-            ? Stack(
-          fit: StackFit.expand,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                widget.flavor!.fullImageUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _placeholder(),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.camera_alt,
-                        color: Colors.white, size: 32),
-                    SizedBox(height: 6),
-                    Text('اضغط لتغيير الصورة',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12)),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        )
-            : _placeholder()),
+                ? Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          widget.flavor!.fullImageUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _placeholder(context),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.camera_alt, color: Colors.white, size: 32),
+                              const SizedBox(height: 6),
+                              Text(l10n.changeImageTap, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : _placeholder(context)),
       ),
     );
   }
 
-  Widget _placeholder() => Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      const Icon(Icons.add_photo_alternate,
-          size: 40, color: AppColors.textHint),
-      const SizedBox(height: 8),
-      Text(
-        isEdit ? 'اضغط لتغيير الصورة' : 'اضغط لاختيار صورة (اختياري)',
-        style: const TextStyle(
-            color: AppColors.textSecondary, fontSize: 12),
-      ),
-    ],
-  );
+  Widget _placeholder(BuildContext context) => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.add_photo_alternate, size: 40, color: AppColors.textHint),
+          const SizedBox(height: 8),
+          Text(
+            isEdit ? context.l10n.changeImageTap : context.l10n.pickOptionalImage,
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+          ),
+        ],
+      );
 }

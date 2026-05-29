@@ -1,0 +1,756 @@
+{
+  "@@locale": "en",
+  "appTitle": "BAR Sweets - Dashboard",
+  "dashboard": "Dashboard",
+  "dashboardShellSubtitle": "Full business control panel",
+  "products": "Products",
+  "categories": "Categories",
+  "flavors": "Flavors",
+  "inventory": "Inventory",
+  "customers": "Customers",
+  "employees": "Employees",
+  "coupons": "Coupons",
+  "reports": "Reports",
+  "analytics": "Analytics",
+  "branches": "Branches",
+  "notifications": "Notifications",
+  "activityLog": "Activity Log",
+  "settings": "Settings",
+  "orders": "Orders",
+  "searchHint": "Search...",
+  "allBranches": "All Branches",
+  "branchClosedLabel": "Closed",
+  "language": "Language",
+  "arabic": "Arabic",
+  "english": "English",
+  "owner": "Owner",
+  "logout": "Logout",
+  "userMenu": "User menu",
+  "openNotificationsPage": "Open notifications page",
+  "lastNotifications": "Latest notifications",
+  "markAllRead": "Read all",
+  "noNotifications": "No notifications yet",
+  "latestActivity": "Latest activity",
+  "openActivityPage": "Open activity log",
+  "noActivity": "No activity yet",
+  "headerWelcome": "Overview",
+  "headerLive": "Live",
+  "settingsPageTitle": "Settings",
+  "settingsPageSubtitle": "Control alerts, updates, language, and system behavior",
+  "settingsSectionLanguage": "Language",
+  "settingsSectionNotifications": "Notifications & Alerts",
+  "settingsSectionLiveUpdates": "Live Updates",
+  "settingsSectionBehavior": "General Behavior",
+  "settingsSectionSecurity": "Security & Session",
+  "settingsSectionSystem": "System Information",
+  "soundEnabledTitle": "Enable notification sound",
+  "soundEnabledSubtitle": "Play a strong alert when new online orders arrive",
+  "pushEnabledTitle": "Enable live notifications",
+  "pushEnabledSubtitle": "Add new alerts directly to the notifications center",
+  "testNotificationSound": "Test notification sound",
+  "testNotificationSoundSubtitle": "Play the current notification sound to verify output",
+  "testButton": "Test",
+  "autoRefreshTitle": "Auto refresh",
+  "autoRefreshSubtitle": "Refresh orders and alerts in background every few seconds",
+  "analyticsRealtimeTitle": "Realtime analytics",
+  "analyticsRealtimeSubtitle": "Keep analytics and charts updated continuously",
+  "showClosedBranchesTitle": "Show closed branches",
+  "showClosedBranchesSubtitle": "Keep closed branches visible in lists and selectors",
+  "confirmationsTitle": "Confirm sensitive actions",
+  "confirmationsSubtitle": "Show confirmation dialogs for archive, edit, and cancel operations",
+  "compactModeTitle": "Compact mode",
+  "compactModeSubtitle": "Reduce spacing and margins across cards and lists",
+  "securityLevelTitle": "Security level",
+  "securityLevelSubtitle": "The dashboard currently relies on local session token storage. 2FA and richer permissions can be added later.",
+  "appVersion": "App version",
+  "systemStatus": "System status",
+  "systemReady": "Ready",
+  "notificationSoundTestTitle": "Sound test",
+  "notificationSoundTestBody": "Notification sound played successfully.",
+  "notificationSoundTestLog": "Notification sound was tested from settings page.",
+  "goToNotifications": "Notifications",
+  "goToSettings": "Settings",
+  "goToActivity": "Activity",
+  "changeLanguage": "Change language",
+  "unreadCount": "Unread",
+  "viewAll": "View all",
+  "ordersPageSubtitle": "Manage customer orders",
+  "totalLabel": "total",
+  "inProgressLabel": "in progress",
+  "refreshingLabel": "Refreshing...",
+  "liveLabel": "Live",
+  "ordersSearchHint": "Search by order number, customer, or address...",
+  "allStatuses": "All statuses",
+  "selectOrderToView": "Select an order to view its details",
+  "noMatchingResults": "No matching results",
+  "noOrdersYet": "No orders yet",
+  "noOrdersForSelectedBranch": "No orders for the selected branch, or current orders are not linked to a branch by the backend.",
+  "retry": "Retry",
+  "singleNewOrderArrived": "🎉 A new order has arrived!",
+  "multipleNewOrdersArrived": "🎉 {count} new orders have arrived!",
+  "@multipleNewOrdersArrived": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noCustomersYet": "No customers yet",
+  "noCustomersForSelectedBranch": "No customers have orders in the selected branch, or current orders are not linked to a branch.",
+  "noCustomersInSelectedBranch": "No customers in the selected branch",
+  "selectCustomerFromList": "Select a customer from the list",
+  "viewDetailsAndStats": "To view customer details and statistics",
+  "reload": "Reload",
+  "branchesPageSubtitle": "Manage branches and operating status",
+  "openBranchesShortLabel": "open",
+  "closedBranchesShortLabel": "closed",
+  "newBranch": "New branch",
+  "branchesSearchHint": "Search by branch name, phone, or address...",
+  "allBranchesFilter": "All branches",
+  "openBranchesFilter": "Open branches",
+  "closedBranchesFilter": "Closed branches",
+  "branchArchiveTitle": "Close branch",
+  "branchArchiveMessage": "Do you want to close branch \"{branchName}\"? It will remain visible in the list but marked as closed.",
+  "@branchArchiveMessage": {
+    "placeholders": {
+      "branchName": {
+        "type": "String"
+      }
+    }
+  },
+  "cancel": "Cancel",
+  "closeBranch": "Close",
+  "noBranchesYet": "No branches yet",
+  "noClosedBranches": "No closed branches",
+  "noMatchingBranches": "No matching results",
+  "addNewBranch": "Add new branch",
+  "print": "Print",
+  "preview": "Preview",
+  "savePdf": "Save PDF",
+  "share": "Share",
+  "invoice": "Invoice",
+  "invoiceActionsSubtitle": "Print, save, or share the invoice",
+  "orderStatusTitle": "Order status",
+  "customerData": "Customer data",
+  "customerDataSubtitle": "Customer information for this order",
+  "customerId": "ID",
+  "deliveryAddress": "Delivery address",
+  "withGps": "With GPS coordinates",
+  "noAddressEntered": "No address entered",
+  "accurateCoordinates": "Accurate coordinates",
+  "openGoogleMaps": "Open in Google Maps",
+  "preparationBranch": "Preparation branch",
+  "preparationBranchSubtitle": "The branch responsible for this order",
+  "orderItems": "Ordered items",
+  "productsAndPieces": "{products} products / {pieces} pieces",
+  "@productsAndPieces": {
+    "placeholders": {
+      "products": {
+        "type": "int"
+      },
+      "pieces": {
+        "type": "int"
+      }
+    }
+  },
+  "subtotal": "Subtotal",
+  "deliveryFee": "Delivery fee",
+  "discount": "Discount",
+  "finalTotal": "Final total",
+  "totals": "Totals",
+  "totalsSubtitle": "Amount summary",
+  "customerNotes": "Customer notes",
+  "specialInstructions": "Special instructions for the order",
+  "emailLabel": "Email",
+  "phoneLabel": "Phone",
+  "call": "Call",
+  "whatsapp": "WhatsApp",
+  "noPhoneRegistered": "No phone number registered",
+  "address": "Address",
+  "noAddressRegistered": "No address registered",
+  "stats": "Statistics",
+  "totalOrdersLabel": "Total orders",
+  "totalPurchase": "Total spending",
+  "completed": "Completed",
+  "cancelled": "Cancelled",
+  "averageOrder": "Average order",
+  "lastOrder": "Last order",
+  "latestOrders": "Latest {count} orders",
+  "@latestOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noPreviousOrders": "No previous orders",
+  "blockUser": "Block customer",
+  "unblockUser": "Unblock customer",
+  "updatingLabel": "Updating...",
+  "customerBlockedInfo": "This customer is blocked from placing new orders.",
+  "suspiciousCancellationRate": "⚠️ High cancellation rate: {rate}% of orders",
+  "@suspiciousCancellationRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "contact": "Contact",
+  "latestOrderPrefix": "Last order: ",
+  "phoneDisabled": "Phone disabled",
+  "branchStatusOpen": "Open",
+  "branchStatusClosed": "Closed",
+  "edit": "Edit",
+  "reopenBranch": "Re-open branch",
+  "pauseBranch": "Close branch",
+  "branchFormEditTitle": "Edit branch",
+  "branchFormAddTitle": "Add new branch",
+  "branchNameAr": "Branch name in Arabic *",
+  "branchNameEn": "Branch Name (English) *",
+  "phoneRequired": "Phone number *",
+  "addressAr": "Address in Arabic *",
+  "addressEn": "Address (English) *",
+  "descriptionAr": "Description in Arabic *",
+  "descriptionEn": "Description (English) *",
+  "branchCloseInfo": "Closing a branch does not remove it from the list; it remains visible as closed.",
+  "saveChanges": "Save changes",
+  "addingBranch": "Add branch",
+  "saving": "Saving...",
+  "fieldRequired": "This field is required",
+  "invalidPhone": "Invalid phone number",
+  "blocked": "Blocked",
+  "orderTotal": "Total",
+  "quantityLabel": "Quantity: {count}",
+  "@quantityLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "otherProductsCount": "+ {count} more products",
+  "@otherProductsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productDeleted": "Deleted product",
+  "now": "Now",
+  "minutesAgo": "{count} min ago",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayTime": "Today {time}",
+  "@todayTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "yesterdayTime": "Yesterday {time}",
+  "@yesterdayTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "daysAgo": "{count} days ago",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sizeLabel": "Size: {size}",
+  "@sizeLabel": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "inProgressStatus": "In progress",
+  "pendingStatus": "Pending",
+  "confirmedStatus": "Confirmed",
+  "preparingStatus": "Preparing",
+  "outForDeliveryStatus": "Out for delivery",
+  "deliveredStatus": "Delivered",
+  "cancelledStatus": "Cancelled",
+  "unknown": "Unknown",
+  "confirmBlock": "Confirm block",
+  "blockReason": "Block reason:",
+  "customReasonOptional": "Additional details (optional)",
+  "writeReasonHint": "Write any extra details...",
+  "customerWillBeBlocked": "The customer will not be able to place new orders until unblocked",
+  "confirmBlockAction": "Confirm block",
+  "selectOrWriteReason": "Please select or write a block reason",
+  "reasonTooManyCancels": "Too many cancelled orders",
+  "reasonBadComments": "Annoying customer / bad comments",
+  "reasonFraud": "Fraud attempts",
+  "reasonNoPickup": "Did not receive confirmed orders",
+  "reasonCashRefusal": "Refused cash on delivery",
+  "reasonBadBehavior": "Inappropriate behavior",
+  "reasonOther": "Other reason",
+  "unblockTitle": "Unblock customer",
+  "unblockMessage": "Do you want to unblock \"{name}\"? The customer will be able to order again.",
+  "@unblockMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "viewDetailsAndStatistics": "View details and statistics",
+  "orderStatusLabel": "Order status",
+  "deliveredSuccessTitle": "✓ Order delivered successfully",
+  "deliveredSuccessSubtitle": "The order has been completed and delivered to the customer",
+  "cancelledOrderTitle": "🚫 This order was cancelled",
+  "cancelledOrderSubtitle": "A cancelled order cannot change status anymore",
+  "goToNextStatus": "Move to: {status}",
+  "@goToNextStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelOrder": "Cancel order",
+  "confirmCancellation": "Confirm cancellation",
+  "cancelOrderConfirmMessage": "Are you sure you want to cancel this order? This action cannot be undone.",
+  "backAction": "Back",
+  "cancelOrderAction": "Cancel order",
+  "customerSectionTitle": "Customer",
+  "customerSectionSubtitle": "Customer information",
+  "deliveryAddressTitle": "Delivery address",
+  "deliveryAddressSubtitle": "Delivery location details",
+  "preparationBranchTitle": "Preparation branch",
+  "invoiceSectionTitle": "Invoice",
+  "invoiceSectionSubtitle": "Print, save, or share the invoice",
+  "itemsSectionTitle": "Ordered items",
+  "totalsSectionTitle": "Totals",
+  "totalsSectionSubtitle": "Order amount summary",
+  "notesSectionTitle": "Customer notes",
+  "notesSectionSubtitle": "Special instructions",
+  "exactGps": "Accurate GPS",
+  "openInGoogleMaps": "Open in Google Maps",
+  "branchPhones": "Branch phones",
+  "sizePrefix": "Size: {size}",
+  "@sizePrefix": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "flavorsPrefix": "Flavors: {flavors}",
+  "@flavorsPrefix": {
+    "placeholders": {
+      "flavors": {
+        "type": "String"
+      }
+    }
+  },
+  "subtotalLabel": "Subtotal",
+  "deliveryFeeLabel": "Delivery fee",
+  "discountLabel": "Discount",
+  "finalTotalLabel": "Final total",
+  "customerContact": "Contact",
+  "customerAddress": "Address",
+  "noAddressSaved": "No saved address",
+  "statsSectionTitle": "Statistics",
+  "latestOrdersSectionTitle": "Latest orders",
+  "averageOrderLabel": "Average order",
+  "deliveredLabel": "Delivered",
+  "cancelledLabel": "Cancelled",
+  "lastOrderLabel": "Last order: ",
+  "blockCustomerAction": "Block customer",
+  "unblockCustomerAction": "Unblock customer",
+  "customerBlockedBanner": "This customer is blocked from placing new orders.",
+  "openWhatsapp": "WhatsApp",
+  "regularTier": "Regular",
+  "bronzeTier": "Bronze",
+  "silverTier": "Silver",
+  "goldTier": "Gold",
+  "phoneNumberLabel": "Phone number",
+  "emailAddressLabel": "Email address",
+  "reportsPageSubtitle": "Detailed operational and management reports by selected branch",
+  "reportExecutiveHeaderAll": "Executive report - all branches",
+  "reportExecutiveHeaderBranch": "Executive report - {branchName}",
+  "@reportExecutiveHeaderBranch": {
+    "placeholders": {
+      "branchName": {
+        "type": "String"
+      }
+    }
+  },
+  "reportExecutiveDescription": "This report is designed for management and shows financial, operational, customer, and branch performance in one place.",
+  "reportMissingBranchData": "Branch-linked order data is currently unavailable from the API, so branch-specific reports are limited until the backend returns branchId or branchName.",
+  "activeCustomersLabel": "Active customers",
+  "repeatCustomersLabel": "Repeat customers",
+  "financialReportTitle": "Financial report",
+  "todayRevenueLabel": "Today revenue",
+  "weekRevenueLabel": "Week revenue",
+  "monthRevenueLabel": "Month revenue",
+  "averageOrderValueLabel": "Average order value",
+  "completedOrdersLabel": "Completed orders",
+  "cancelledOrdersCountLabel": "Cancelled orders",
+  "customersReportTitle": "Customer report",
+  "noEnoughCustomerData": "Not enough customer data yet",
+  "ordersCountWord": "orders",
+  "branchesReportTitle": "Branches report",
+  "branchesOverview": "Total branches: {total} | Open: {open} | Closed: {closed}",
+  "@branchesOverview": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "open": {
+        "type": "int"
+      },
+      "closed": {
+        "type": "int"
+      }
+    }
+  },
+  "branchDistributionUnavailable": "Branch order distribution cannot be generated because current orders do not contain branch data from the API.",
+  "recommendationsTitle": "Operational recommendations",
+  "noCriticalRecommendations": "No critical recommendations at the moment.",
+  "recommendationCancelledOrders": "Review cancellation reasons because the current number of cancelled orders is {count}.",
+  "@recommendationCancelledOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recommendationLowActiveCustomers": "Active customers are relatively low; consider targeted offers for repeat customers.",
+  "recommendationBranchBalance": "Review branch load distribution to ensure balanced operations, especially during peak times.",
+  "recommendationAverageOrder": "The current average order is {amount} EGP; it can be used to design upsell offers.",
+  "@recommendationAverageOrder": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsPageSubtitle": "Advanced analytics dashboards for finance, customers, employees, sales, branches, and orders",
+  "financialTab": "Financial",
+  "customersTab": "Customers",
+  "employeesTab": "Employees",
+  "salesTab": "Sales",
+  "branchesTab": "Branches",
+  "ordersTab": "Orders",
+  "analyticsScopeAll": "Current analysis: all branches",
+  "analyticsScopeBranch": "Current analysis: {branchName}",
+  "@analyticsScopeBranch": {
+    "placeholders": {
+      "branchName": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsScopeDescription": "This page combines multidimensional analytics based on available orders, customers, and branches data.",
+  "analyticsMissingBranchData": "Current orders do not provide branchId/branchName, so branch-based analytics will remain limited until the backend links orders to branches.",
+  "totalRevenueKpi": "Total revenue",
+  "todayRevenueKpi": "Today revenue",
+  "weekRevenueKpi": "Week revenue",
+  "monthRevenueKpi": "Month revenue",
+  "orderCountKpi": "Orders count",
+  "totalCustomersKpi": "Total customers",
+  "activeCustomersKpi": "Active customers",
+  "repeatCustomersKpi": "Repeat customers",
+  "vipCustomersKpi": "VIP customers",
+  "topSpendingCustomersTitle": "Top spending customers",
+  "employeesAnalyticsEstimatedTitle": "Employees analytics (estimated)",
+  "employeesEstimatedSubtitle": "There is no real employees API yet, so the figures below are operational estimates based on order load and number of open branches.",
+  "neededCashiers": "Required cashiers",
+  "neededKitchen": "Required kitchen staff",
+  "neededDelivery": "Required delivery staff",
+  "loadPerBranch": "Load per branch",
+  "topProductsTitle": "Top products",
+  "openBranchesKpi": "Open branches",
+  "closedBranchesKpi": "Closed branches",
+  "totalBranchesKpi": "Total branches",
+  "linkedOrdersToBranch": "Orders linked to branch",
+  "branchLinkWarningTitle": "Branch linking warning",
+  "branchDistributionTitle": "Order distribution by branch",
+  "inProgressOrdersKpi": "In progress orders",
+  "completionRateKpi": "Completion rate",
+  "cancellationRateKpi": "Cancellation rate",
+  "revenueChartTitle": "Weekly revenue",
+  "revenueChartSubtitle": "Sales performance over the last 7 days",
+  "noDataLabel": "No data",
+  "ordersByStatusTitle": "Orders by status",
+  "ordersByStatusSubtitle": "Current order distribution",
+  "noOrdersLabel": "No orders",
+  "topProductsChartTitle": "Top selling products",
+  "topProductsChartSubtitle": "Top 5 most ordered products",
+  "totalOrdersWord": "Total orders",
+  "requestWord": "orders",
+  "activityPageSubtitle": "A full timeline for operations, alerts, and updates",
+  "eventsWord": "events",
+  "clearLog": "Clear log",
+  "overallLabel": "Overall",
+  "warningsLabel": "Warnings",
+  "criticalLabel": "Critical",
+  "allFilter": "All",
+  "systemLabel": "System",
+  "loginLabel": "Login",
+  "notificationsPageSubtitle": "Order alerts, critical updates, and system notifications",
+  "markAllReadAction": "Mark all as read",
+  "unreadLabel": "Unread",
+  "todayLabel": "Today",
+  "ordersFilter": "Orders",
+  "branchesFilter": "Branches",
+  "customersFilter": "Customers",
+  "clearList": "Clear list",
+  "alertLabel": "Alert",
+  "activityTypeOrder": "Order",
+  "activityTypeBranch": "Branch",
+  "activityTypeUser": "Customer",
+  "activityTypeSystem": "System",
+  "activityTypeSettings": "Settings",
+  "dashboardPageTitle": "Dashboard",
+  "dashboardPageSubtitle": "Today business summary",
+  "autoRefreshEnabledLabel": "🟢 Auto refresh enabled",
+  "autoRefreshingLabel": "🔄 Refreshing...",
+  "everySeconds": "(every {seconds} sec)",
+  "@everySeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "lastUpdateLabel": "Last update: {time}",
+  "@lastUpdateLabel": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "updatedSuccessfully": "✅ Updated",
+  "dashboardWelcomeSubtitle": "Today business summary ✨",
+  "totalRevenueLabel": "Total revenue",
+  "allPeriodsLabel": "All periods",
+  "weeklySalesLabel": "Weekly sales",
+  "last7DaysLabel": "Last 7 days",
+  "averageOrderValueKpi": "Average order value",
+  "availableProductsLabel": "Available products",
+  "categoriesCountLabel": "categories",
+  "recentOrdersTitle": "Latest orders",
+  "recentOrdersSubtitle": "Latest transactions",
+  "noOrdersForBranch": "No orders for selected branch",
+  "productsPageTitle": "Products",
+  "productsPageSubtitle": "Manage store products",
+  "availableLabel": "Available",
+  "soldOutLabel": "Sold Out",
+  "newProduct": "New product",
+  "productsSearchHint": "Search for a product...",
+  "allFilterProducts": "All",
+  "activeOnlyFilter": "Available only",
+  "soldOutOnlyFilter": "Sold Out only",
+  "confirmSoldOutTitle": "Confirm Sold Out",
+  "confirmSoldOutMessage": "Do you want to mark \"{name}\" as Sold Out? It will appear unavailable to customers.",
+  "@confirmSoldOutMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "soldOutAction": "Sold Out",
+  "noProductsYet": "No products yet",
+  "noSoldOutProducts": "No Sold Out products",
+  "addNewProduct": "Add new product",
+  "featuredLabel": "Featured",
+  "bestSellerLabel": "Best seller",
+  "customizableLabel": "Customizable",
+  "availableStatus": "Available",
+  "soldOutStatus": "Sold Out",
+  "sizesCount": "{count} sizes",
+  "@sizesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flavorsCount": "{count} flavors",
+  "@flavorsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "enableProductForSale": "Enable product for sale",
+  "editProduct": "Edit product",
+  "markAsSoldOut": "Mark as Sold Out",
+  "productDetailsBack": "Back",
+  "basePriceLabel": "Base price",
+  "categoryLabel": "Category",
+  "descriptionLabel": "Description",
+  "availableSizesTitle": "Available sizes",
+  "noSizesAdded": "No sizes added",
+  "availableFlavorsTitle": "Available flavors",
+  "noFlavorsAdded": "No flavors added",
+  "productWizardEditTitle": "Edit product",
+  "productWizardAddTitle": "Add new product",
+  "wizardStepBasic": "Basic info",
+  "wizardStepSizes": "Sizes",
+  "wizardStepFlavors": "Flavors",
+  "selectCategoryError": "Choose a category",
+  "selectProductImageError": "Choose a product image",
+  "nameArField": "Name in Arabic *",
+  "nameEnField": "Name (English) *",
+  "descriptionArField": "Description in Arabic *",
+  "descriptionEnField": "Description (English) *",
+  "defaultSizeNameField": "Default size name",
+  "basePriceField": "Base price *",
+  "featuredOptionTitle": "Featured ⭐",
+  "featuredOptionSubtitle": "Show in featured section",
+  "bestSellerOptionTitle": "Best seller 🔥",
+  "bestSellerOptionSubtitle": "Show in best sellers",
+  "customizableOptionTitle": "Customizable 🎨",
+  "customizableOptionSubtitle": "Contains sizes/flavors",
+  "saveAndNextSizes": "Save and continue to sizes",
+  "saveAndContinueSizesLoading": "Saving...",
+  "pickProductImage": "Tap to choose product image *",
+  "requiredFieldShort": "Required",
+  "noCategoriesFirst": "No categories available. Add a category first.",
+  "categoryField": "Category *",
+  "mustChooseCategory": "You must choose a category",
+  "productSizeAddedSuccess": "{count} sizes added successfully",
+  "@productSizeAddedSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productSizesTitle": "Available product sizes",
+  "productSizesSubtitle": "Add sizes with price and dimensions",
+  "addSize": "Add size",
+  "existingSizes": "Existing sizes:",
+  "noSizesAddedYet": "No sizes added yet",
+  "skipIfNoSizes": "You can skip this step if the product has no sizes",
+  "previous": "Previous",
+  "savingSizes": "Saving sizes...",
+  "skipToFlavors": "Skip to flavors",
+  "saveSizesAndContinue": "Save {count} sizes and continue",
+  "@saveSizesAndContinue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addSizeDialogTitle": "Add size",
+  "sizeImageOptional": "Size image (optional)",
+  "sizeNameArField": "Size name AR *",
+  "sizeNameEnField": "Size name EN *",
+  "sizeTokenField": "SizeName (e.g. S/M/L)",
+  "sizeDescriptionArField": "Description AR",
+  "sizeDescriptionEnField": "Description EN",
+  "priceField": "Price *",
+  "radiusField": "Radius",
+  "heightField": "Height",
+  "servesField": "Serves (e.g. 4-6 people)",
+  "availableSwitch": "Available",
+  "addSizeAction": "Add size",
+  "availableFlavorsChooseTitle": "Choose available flavors",
+  "availableFlavorsChooseSubtitle": "Select flavors and optional extra price",
+  "noFlavorsAvailable": "No flavors available. Add flavors first from the flavors page.",
+  "extraPriceField": "Extra price",
+  "saveAndFinishFlavorsLoading": "Saving...",
+  "finishWithoutFlavors": "Finish without flavors",
+  "saveFlavorsAndFinish": "Save {count} flavors and finish",
+  "@saveFlavorsAndFinish": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoriesPageSubtitle": "Organize your products into categories",
+  "newCategory": "New category",
+  "searchCategoryHint": "Search for a category...",
+  "activeCategoriesFilter": "Active",
+  "archivedCategoriesFilter": "Archived",
+  "confirmArchiveTitle": "Confirm archive",
+  "categoryArchiveMessage": "Are you sure you want to archive category \"{name}\"?\nProducts count: {count}",
+  "@categoryArchiveMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "archiveAction": "Archive",
+  "noArchivedCategories": "No archived categories",
+  "noCategoriesAvailable": "No categories yet",
+  "addCategoryAction": "Add category",
+  "archivedBadge": "Archived",
+  "productsCountLabel": "{count} products",
+  "@productsCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chooseImageRequired": "You must choose an image",
+  "editCategoryTitle": "Edit category",
+  "addCategoryTitle": "Add new category",
+  "saveCategoryChanges": "Save changes",
+  "addCategoryButton": "Add category",
+  "changeImageTap": "Tap to change image",
+  "pickCategoryImage": "Tap to choose category image *",
+  "flavorsPageSubtitle": "Manage product flavors",
+  "availableFlavorsLabel": "available",
+  "archivedFlavorsLabel": "archived",
+  "newFlavor": "New flavor",
+  "searchFlavorHint": "Search for a flavor...",
+  "availableFilter": "Available",
+  "unavailableFilter": "Unavailable",
+  "archivedFilter": "Archived",
+  "confirmFlavorArchiveTitle": "Confirm archive",
+  "flavorArchiveMessage": "Are you sure you want to archive flavor \"{name}\"?",
+  "@flavorArchiveMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noArchivedFlavors": "No archived flavors",
+  "allFlavorsAvailableLabel": "All flavors are available 👍",
+  "noFlavorsCreated": "No flavors yet",
+  "addFlavorAction": "Add flavor",
+  "flavorArchivedBadge": "Archived",
+  "flavorUnavailableBadge": "Unavailable",
+  "flavorAvailableBadge": "Available",
+  "editFlavorTitle": "Edit flavor",
+  "addFlavorTitle": "Add new flavor",
+  "availableForSelectionTitle": "Available for selection ✓",
+  "availableForSelectionSubtitle": "Customers can choose this flavor",
+  "saveFlavorChanges": "Save changes",
+  "addFlavorButton": "Add flavor",
+  "pickOptionalImage": "Tap to choose an image (optional)",
+  "basicInfoSavedNextSizes": "Save and continue to sizes"
+}

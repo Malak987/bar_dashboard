@@ -2,8 +2,12 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../network/api_constants.dart';
+import '../services/notification_sound_service.dart';
 import '../network/dio_factory.dart';
 import '../storage/auth_local_storage.dart';
+import '../storage/app_settings_local_storage.dart';
+
+import '../../features/settings/presentation/cubit/settings_cubit.dart';
 
 // Accounts
 import '../../features/accounts/data/datasources/accounts_web_service.dart';
@@ -16,6 +20,14 @@ import '../../features/accounts/domain/usecases/register_admin_usecase.dart';
 import '../../features/accounts/domain/usecases/update_user_archive_status_usecase.dart';
 import '../../features/accounts/presentation/cubit/auth_cubit.dart';
 import '../../features/accounts/presentation/cubit/users_cubit.dart';
+
+
+// Branches
+import '../../features/branches/data/datasources/branches_web_service.dart';
+import '../../features/branches/data/repositories/branches_repository_impl.dart';
+import '../../features/branches/domain/repositories/branches_repository.dart';
+import '../../features/branches/domain/usecases/branches_usecases.dart';
+import '../../features/branches/presentation/cubit/branches_cubit.dart';
 
 // Carts
 import '../../features/carts/data/datasources/carts_web_service.dart';
@@ -74,6 +86,11 @@ Future<void> initDependencies() async {
   final sharedPrefs = await SharedPreferences.getInstance();
   sl.registerLazySingleton<SharedPreferences>(() => sharedPrefs);
   sl.registerLazySingleton<AuthLocalStorage>(() => AuthLocalStorage(sl()));
+  sl.registerLazySingleton<AppSettingsLocalStorage>(
+        () => AppSettingsLocalStorage(sl()),
+  );
+  sl.registerLazySingleton(() => SettingsCubit(sl()));
+  sl.registerLazySingleton<NotificationSoundService>(() => NotificationSoundService());
 
   final dio = DioFactory.create(sl<AuthLocalStorage>());
   sl.registerLazySingleton(() => dio);
@@ -92,6 +109,22 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => UpdateUserArchiveStatusUseCase(sl()));
   sl.registerFactory(() => AuthCubit(sl(), sl(), sl()));
   sl.registerFactory(() => UsersCubit(sl(), sl(), sl()));
+
+
+  // ===== Branches =====
+  sl.registerLazySingleton<BranchesWebService>(
+        () => BranchesWebService(sl(), baseUrl: ApiConstants.baseUrl),
+  );
+  sl.registerLazySingleton<BranchesRepository>(
+        () => BranchesRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetAllBranchesUseCase(sl()));
+  sl.registerLazySingleton(() => GetBranchByIdUseCase(sl()));
+  sl.registerLazySingleton(() => AddBranchUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateBranchUseCase(sl()));
+  sl.registerLazySingleton(() => ArchiveBranchUseCase(sl()));
+  sl.registerLazySingleton(() => UnArchiveBranchUseCase(sl()));
+  sl.registerFactory(() => BranchesCubit(sl(), sl(), sl(), sl(), sl(), sl()));
 
   // ===== Carts =====
   sl.registerLazySingleton<CartsWebService>(

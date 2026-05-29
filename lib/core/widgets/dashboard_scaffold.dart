@@ -36,27 +36,33 @@ class DashboardScaffold extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      // الـ drawer للموبايل فقط
       drawer: !isDesktop ? const Drawer(child: DashboardSidebar()) : null,
       floatingActionButton: floatingActionButton,
       floatingActionButtonLocation: floatingActionButtonLocation,
       body: SafeArea(
         child: Row(
           children: [
-            // ✅ Sidebar دايماً ظاهر على الديسكتوب
             if (isDesktop)
               const SizedBox(
                 width: 240,
                 child: DashboardSidebar(),
               ),
-            // ✅ Header + Page Title + Body
             Expanded(
-              child: Column(
-                children: [
-                  const DashboardHeader(),
-                  if (pageTitle != null) _buildPageTitleBar(context),
-                  Expanded(child: body),
-                ],
+              child: Container(
+                decoration: BoxDecoration(
+                  border: isDesktop
+                      ? const Border(
+                          left: BorderSide(color: AppColors.border),
+                        )
+                      : null,
+                ),
+                child: Column(
+                  children: [
+                    const DashboardHeader(),
+                    if (pageTitle != null) _buildPageTitleBar(context),
+                    Expanded(child: body),
+                  ],
+                ),
               ),
             ),
           ],
@@ -102,7 +108,9 @@ class DashboardScaffold extends StatelessWidget {
                   Text(
                     pageSubtitle!,
                     style: const TextStyle(
-                        color: AppColors.textSecondary, fontSize: 12),
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
                   ),
               ],
             ),

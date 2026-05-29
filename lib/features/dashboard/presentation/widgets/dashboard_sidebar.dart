@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../accounts/presentation/cubit/auth_cubit.dart';
@@ -9,15 +10,14 @@ class DashboardSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
 
-    // ✅ Material widget في الأعلى عشان الـ InkWell يشتغل بكفاءة
     return Material(
       color: AppColors.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ===== Logo + Brand =====
           InkWell(
             onTap: () => _navigate(context, AppRoutes.dashboard),
             child: Padding(
@@ -33,11 +33,11 @@ class DashboardSidebar extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'BAR Sweets',
                           style: TextStyle(
                             color: AppColors.textPrimary,
@@ -46,8 +46,8 @@ class DashboardSidebar extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'لوحة التحكم',
-                          style: TextStyle(
+                          l10n.dashboard,
+                          style: const TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 11,
                           ),
@@ -60,126 +60,118 @@ class DashboardSidebar extends StatelessWidget {
             ),
           ),
           const Divider(color: AppColors.border, height: 1),
-
-          // ===== Menu Items =====
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 12),
               children: [
                 _NavItem(
                   icon: Icons.dashboard,
-                  label: 'لوحة التحكم',
+                  label: l10n.dashboard,
                   route: AppRoutes.dashboard,
                   currentRoute: currentRoute,
                 ),
                 _NavItem(
                   icon: Icons.shopping_cart,
-                  label: 'الطلبات',
+                  label: l10n.orders,
                   route: AppRoutes.orders,
                   currentRoute: currentRoute,
                 ),
                 _NavItem(
                   icon: Icons.cake,
-                  label: 'المنتجات',
+                  label: l10n.products,
                   route: AppRoutes.products,
                   currentRoute: currentRoute,
                 ),
                 _NavItem(
                   icon: Icons.category,
-                  label: 'الفئات',
+                  label: l10n.categories,
                   route: AppRoutes.categories,
                   currentRoute: currentRoute,
                 ),
                 _NavItem(
                   icon: Icons.local_drink,
-                  label: 'النكهات',
+                  label: l10n.flavors,
                   route: AppRoutes.flavors,
                   currentRoute: currentRoute,
                 ),
                 _NavItem(
                   icon: Icons.inventory_2,
-                  label: 'المخزون',
+                  label: l10n.inventory,
                   route: AppRoutes.inventory,
                   currentRoute: currentRoute,
                 ),
                 _NavItem(
                   icon: Icons.people,
-                  label: 'العملاء',
+                  label: l10n.customers,
                   route: AppRoutes.customers,
                   currentRoute: currentRoute,
                 ),
                 _NavItem(
                   icon: Icons.badge,
-                  label: 'الموظفين',
+                  label: l10n.employees,
                   route: AppRoutes.employees,
                   currentRoute: currentRoute,
                 ),
                 _NavItem(
                   icon: Icons.discount,
-                  label: 'الكوبونات',
+                  label: l10n.coupons,
                   route: AppRoutes.coupons,
                   currentRoute: currentRoute,
                 ),
                 const SizedBox(height: 12),
                 _NavItem(
                   icon: Icons.assessment,
-                  label: 'التقارير',
+                  label: l10n.reports,
                   route: AppRoutes.reports,
                   currentRoute: currentRoute,
                 ),
                 _NavItem(
                   icon: Icons.analytics,
-                  label: 'التحليلات',
+                  label: l10n.analytics,
                   route: AppRoutes.analytics,
                   currentRoute: currentRoute,
                 ),
                 _NavItem(
                   icon: Icons.store,
-                  label: 'الفروع',
+                  label: l10n.branches,
                   route: AppRoutes.branches,
                   currentRoute: currentRoute,
                 ),
                 _NavItem(
                   icon: Icons.notifications,
-                  label: 'الإشعارات',
+                  label: l10n.notifications,
                   route: AppRoutes.notifications,
                   currentRoute: currentRoute,
                 ),
                 _NavItem(
                   icon: Icons.history,
-                  label: 'سجل النشاط',
+                  label: l10n.activityLog,
                   route: AppRoutes.activityLog,
                   currentRoute: currentRoute,
                 ),
                 _NavItem(
                   icon: Icons.settings,
-                  label: 'الإعدادات',
+                  label: l10n.settings,
                   route: AppRoutes.settings,
                   currentRoute: currentRoute,
                 ),
               ],
             ),
           ),
-
-          // ===== User Profile =====
           BlocBuilder<AuthCubit, AuthState>(
             builder: (context, state) {
-              final userName = state is LoginSuccess
-                  ? state.auth.userName
-                  : 'أحمد الراشد';
+              final userName = state is LoginSuccess ? state.auth.userName : l10n.owner;
               return Container(
                 padding: const EdgeInsets.all(12),
                 decoration: const BoxDecoration(
-                  border:
-                  Border(top: BorderSide(color: AppColors.border)),
+                  border: Border(top: BorderSide(color: AppColors.border)),
                 ),
                 child: Row(
                   children: [
                     const CircleAvatar(
                       radius: 18,
                       backgroundColor: AppColors.primary,
-                      child:
-                      Icon(Icons.person, color: Colors.white, size: 20),
+                      child: Icon(Icons.person, color: Colors.white, size: 20),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -189,29 +181,36 @@ class DashboardSidebar extends StatelessWidget {
                           Text(
                             userName,
                             style: const TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold),
+                              color: AppColors.textPrimary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const Text(
-                            'مالك',
-                            style: TextStyle(
-                                color: AppColors.textHint, fontSize: 11),
+                          Text(
+                            l10n.owner,
+                            style: const TextStyle(
+                              color: AppColors.textHint,
+                              fontSize: 11,
+                            ),
                           ),
                         ],
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.logout,
-                          color: AppColors.error, size: 20),
-                      tooltip: 'خروج',
+                      icon: const Icon(
+                        Icons.logout,
+                        color: AppColors.error,
+                        size: 20,
+                      ),
+                      tooltip: l10n.logout,
                       onPressed: () async {
                         await context.read<AuthCubit>().logout();
                         if (context.mounted) {
-                          Navigator.of(context)
-                              .pushNamedAndRemoveUntil(
-                              AppRoutes.login, (_) => false);
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                            AppRoutes.login,
+                            (_) => false,
+                          );
                         }
                       },
                     ),
@@ -236,8 +235,6 @@ class DashboardSidebar extends StatelessWidget {
   }
 }
 
-/// 🆕 Nav Item نظيف بدون ListTile - بنستخدم InkWell + Container مباشرة
-/// عشان نتفادى مشكلة "ListTile background color may be invisible"
 class _NavItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -257,14 +254,12 @@ class _NavItem extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      // ✅ Material في الداخل عشان الـ InkWell يرسم الـ splash فوق الـ background
       child: Material(
         color: selected ? AppColors.primary : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
           onTap: () {
-            // اقفل الـ Drawer لو مفتوح في الموبايل
             if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
               Navigator.of(context).pop();
             }
@@ -279,15 +274,12 @@ class _NavItem extends StatelessWidget {
               ? Colors.white.withValues(alpha: 0.2)
               : AppColors.primary.withValues(alpha: 0.2),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             child: Row(
               children: [
                 Icon(
                   icon,
-                  color: selected
-                      ? Colors.white
-                      : AppColors.textSecondary,
+                  color: selected ? Colors.white : AppColors.textSecondary,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
@@ -295,17 +287,13 @@ class _NavItem extends StatelessWidget {
                   child: Text(
                     label,
                     style: TextStyle(
-                      color: selected
-                          ? Colors.white
-                          : AppColors.textSecondary,
+                      color: selected ? Colors.white : AppColors.textSecondary,
                       fontSize: 14,
-                      fontWeight: selected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+                      fontWeight:
+                          selected ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 ),
-                // مؤشر صغير على اليمين للعنصر المختار
                 if (selected)
                   Container(
                     width: 4,

@@ -33,6 +33,15 @@ class ApiConstants {
   static const String archiveFlavor = '/api/Flavors/ArchiveFlavor';
   static const String unArchiveFlavor = '/api/Flavors/UnArchiveFlavor';
 
+
+  // Branches
+  static const String getAllBranches = '/api/Branches/GetAllBranches';
+  static const String getBranchById = '/api/Branches/GetBranchById';
+  static const String addBranch = '/api/Branches/AddBranch';
+  static const String updateBranch = '/api/Branches/UpdateBranch';
+  static const String archiveBranch = '/api/Branches/ArchiveBranch';
+  static const String unArchiveBranch = '/api/Branches/UnArchiveBranch';
+
   // Orders
   static const String getMyOrders = '/api/Orders/GetMyOrders';
   static const String getAllOrders = '/api/Orders/GetAllOrders';

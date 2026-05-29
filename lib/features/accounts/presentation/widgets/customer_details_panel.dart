@@ -1,26 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
-import "package:characters/characters.dart";
-import "package:characters/characters.dart";
-import '../../../orders/presentation/cubit/orders_cubit.dart';
+import 'package:characters/characters.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/gps_helper.dart';
 import '../../../orders/domain/entities/order_entity.dart';
+import '../../../orders/presentation/cubit/orders_cubit.dart';
 import '../../../orders/presentation/utils/daily_order_numbering.dart';
 import '../../domain/entities/user_entity.dart';
 import '../cubit/users_cubit.dart';
 import '../utils/customer_stats.dart';
 import 'block_user_dialog.dart';
 
-/// 👤 لوحة تفاصيل العميل - يمين Master-Detail
-///
-/// [allOrders] — كل الطلبات اللي بنفلتر منها طلبات العميل ده.
-/// لو [allOrders] null، بنحاول نجيبهم من OrdersCubit (للتوافق مع الصفحات القديمة).
 class CustomerDetailsPanel extends StatelessWidget {
   final UserEntity user;
-
-  /// 🆕 الطلبات تُمرر مباشرة من صفحة العملاء — بدل الاعتماد على Cubit
   final List<OrderEntity>? allOrders;
 
   const CustomerDetailsPanel({
@@ -28,6 +22,34 @@ class CustomerDetailsPanel extends StatelessWidget {
     required this.user,
     this.allOrders,
   });
+
+  String _normalizeId(String id) => id.trim().toLowerCase();
+
+  List<OrderEntity> _ordersForCurrentUser(Iterable<OrderEntity> orders) {
+    final normalizedUserId = _normalizeId(user.id);
+    return orders
+        .where((o) => _normalizeId(o.userId) == normalizedUserId)
+        .toList();
+  }
+
+  String _normalizedStatusName(OrderEntity order) =>
+      order.statusName.trim().toLowerCase();
+
+  bool _isDelivered(OrderEntity order) {
+    final statusName = _normalizedStatusName(order);
+    return statusName == 'delivered' ||
+        statusName == 'completed' ||
+        statusName == 'complete' ||
+        statusName == 'تم التوصيل' ||
+        statusName == 'مكتمل';
+  }
+
+  bool _isCancelled(OrderEntity order) {
+    final statusName = _normalizedStatusName(order);
+    return statusName == 'cancelled' ||
+        statusName == 'canceled' ||
+        statusName == 'ملغي';
+  }
 
   Future<void> _callPhone(String number) async {
     final uri = Uri(scheme: 'tel', path: number);
@@ -58,41 +80,39 @@ class CustomerDetailsPanel extends StatelessWidget {
       builder: (_) => BlockUserDialog(
         user: user,
         onConfirm: (reason) {
-          context
-              .read<UsersCubit>()
-              .blockUser(userId: user.id, reason: reason);
+          context.read<UsersCubit>().blockUser(userId: user.id, reason: reason);
         },
       ),
     );
   }
 
   void _unblockUser(BuildContext context) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.lock_open, color: AppColors.success),
-            SizedBox(width: 8),
-            Text('فك الحظر',
-                style: TextStyle(color: AppColors.textPrimary)),
+            const Icon(Icons.lock_open, color: AppColors.success),
+            const SizedBox(width: 8),
+            Text(l10n.unblockTitle,
+                style: const TextStyle(color: AppColors.textPrimary)),
           ],
         ),
         content: Text(
-          'هل تريد فك حظر "${user.name}"؟\nسيقدر العميل يطلب من جديد.',
+          l10n.unblockMessage(user.name),
           style: const TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('إلغاء'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.success),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
             icon: const Icon(Icons.check, size: 16),
-            label: const Text('فك الحظر'),
+            label: Text(l10n.unblockUser),
             onPressed: () {
               Navigator.of(ctx).pop();
               context.read<UsersCubit>().unblockUser(user.id);
@@ -105,16 +125,12 @@ class CustomerDetailsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 🎯 لو الـ allOrders مُمرر → نستخدمه مباشرة
-    // غير كده → نقع على OrdersCubit (للتوافق مع الصفحات التانية)
     if (allOrders != null) {
-      final userOrders =
-      allOrders!.where((o) => o.userId == user.id).toList();
+      final userOrders = _ordersForCurrentUser(allOrders!);
       final stats = CustomerStats(userOrders);
       return _buildContent(context, stats);
     }
 
-    // fallback: Cubit
     return BlocBuilder<OrdersCubit, OrdersState>(
       buildWhen: (prev, current) {
         if (current is OrdersLoading && prev is OrdersLoaded) return false;
@@ -124,8 +140,7 @@ class CustomerDetailsPanel extends StatelessWidget {
         final orders = ordersState is OrdersLoaded
             ? (ordersState.orders.items as List).cast<OrderEntity>()
             : <OrderEntity>[];
-        final userOrders =
-        orders.where((o) => o.userId == user.id).toList();
+        final userOrders = _ordersForCurrentUser(orders);
         final stats = CustomerStats(userOrders);
         return _buildContent(context, stats);
       },
@@ -140,15 +155,15 @@ class CustomerDetailsPanel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeroHeader(stats),
+            _buildHeroHeader(context, stats),
             const SizedBox(height: 16),
             _buildContactSection(context),
             const SizedBox(height: 16),
-            _buildAddressSection(),
+            _buildAddressSection(context),
             const SizedBox(height: 16),
-            _buildStatsSection(stats),
+            _buildStatsSection(context, stats),
             const SizedBox(height: 16),
-            _buildLatestOrders(stats),
+            _buildLatestOrders(context, stats),
             const SizedBox(height: 16),
             _buildActionButtons(context),
             const SizedBox(height: 20),
@@ -158,8 +173,8 @@ class CustomerDetailsPanel extends StatelessWidget {
     );
   }
 
-  // ════ Hero ════
-  Widget _buildHeroHeader(CustomerStats stats) {
+  Widget _buildHeroHeader(BuildContext context, CustomerStats stats) {
+    final l10n = context.l10n;
     final isBlocked = user.isArchived;
     final tier = stats.tier;
 
@@ -171,15 +186,15 @@ class CustomerDetailsPanel extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: isBlocked
               ? [
-            AppColors.error.withValues(alpha: 0.25),
-            AppColors.error.withValues(alpha: 0.05),
-            AppColors.surface,
-          ]
+                  AppColors.error.withValues(alpha: 0.25),
+                  AppColors.error.withValues(alpha: 0.05),
+                  AppColors.surface,
+                ]
               : [
-            AppColors.primary.withValues(alpha: 0.25),
-            AppColors.primary.withValues(alpha: 0.05),
-            AppColors.surface,
-          ],
+                  AppColors.primary.withValues(alpha: 0.25),
+                  AppColors.primary.withValues(alpha: 0.05),
+                  AppColors.surface,
+                ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
@@ -196,14 +211,14 @@ class CustomerDetailsPanel extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 36,
-                    backgroundColor:
-                    AppColors.primary.withValues(alpha: 0.2),
+                    backgroundColor: AppColors.primary.withValues(alpha: 0.2),
                     child: Text(
                       _initials(user.name),
                       style: const TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22),
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
                     ),
                   ),
                   if (isBlocked)
@@ -215,11 +230,9 @@ class CustomerDetailsPanel extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: AppColors.error,
                           shape: BoxShape.circle,
-                          border: Border.all(
-                              color: AppColors.surface, width: 2),
+                          border: Border.all(color: AppColors.surface, width: 2),
                         ),
-                        child: const Icon(Icons.block,
-                            color: Colors.white, size: 14),
+                        child: const Icon(Icons.block, color: Colors.white, size: 14),
                       ),
                     ),
                 ],
@@ -247,29 +260,23 @@ class CustomerDetailsPanel extends StatelessWidget {
                         ),
                         if (!isBlocked && tier != CustomerTier.regular)
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color:
-                              AppColors.warning.withValues(alpha: 0.15),
+                              color: AppColors.warning.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: AppColors.warning
-                                    .withValues(alpha: 0.3),
-                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(tier.emoji,
-                                    style: const TextStyle(fontSize: 12)),
+                                Text(tier.emoji, style: const TextStyle(fontSize: 12)),
                                 const SizedBox(width: 3),
                                 Text(
-                                  tier.arabicName,
+                                  _localizedTier(context, tier),
                                   style: const TextStyle(
-                                      color: AppColors.warning,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 11),
+                                    color: AppColors.warning,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                  ),
                                 ),
                               ],
                             ),
@@ -279,24 +286,23 @@ class CustomerDetailsPanel extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       user.email,
-                      style: const TextStyle(
-                          color: AppColors.textSecondary, fontSize: 12),
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceLight,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        'ID: ${user.id.substring(0, 8).toUpperCase()}',
+                        '${l10n.customerId}: ${user.id.substring(0, 8).toUpperCase()}',
                         style: const TextStyle(
-                            color: AppColors.textHint,
-                            fontSize: 10,
-                            fontFamily: 'monospace'),
+                          color: AppColors.textHint,
+                          fontSize: 10,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ),
                   ],
@@ -311,20 +317,20 @@ class CustomerDetailsPanel extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                    color: AppColors.error.withValues(alpha: 0.3)),
+                border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.block, color: AppColors.error, size: 20),
-                  SizedBox(width: 10),
+                  const Icon(Icons.block, color: AppColors.error, size: 20),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'هذا العميل محظور من إجراء طلبات جديدة',
-                      style: TextStyle(
-                          color: AppColors.error,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13),
+                      l10n.customerBlockedBanner,
+                      style: const TextStyle(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ],
@@ -338,21 +344,19 @@ class CustomerDetailsPanel extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                    color: AppColors.warning.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.warning_amber,
-                      color: AppColors.warning, size: 18),
+                  const Icon(Icons.warning_amber, color: AppColors.warning, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '⚠️ نسبة إلغاء عالية: ${stats.cancellationRate.toStringAsFixed(0)}% من الطلبات',
+                      l10n.suspiciousCancellationRate(stats.cancellationRate.toStringAsFixed(0)),
                       style: const TextStyle(
-                          color: AppColors.warning,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12),
+                        color: AppColors.warning,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ],
@@ -364,18 +368,17 @@ class CustomerDetailsPanel extends StatelessWidget {
     );
   }
 
-  // ════ Contact ════
   Widget _buildContactSection(BuildContext context) {
-    final hasPhone =
-        user.phoneNumber != null && user.phoneNumber!.isNotEmpty;
+    final l10n = context.l10n;
+    final hasPhone = user.phoneNumber != null && user.phoneNumber!.isNotEmpty;
 
     return _section(
-      title: 'التواصل',
+      title: l10n.customerContact,
       icon: Icons.contact_phone,
       accent: AppColors.info,
       child: Column(
         children: [
-          _infoRow(Icons.email, 'البريد الإلكتروني', user.email),
+          _infoRow(Icons.email, l10n.emailAddressLabel, user.email),
           if (hasPhone) ...[
             const SizedBox(height: 8),
             Container(
@@ -386,38 +389,37 @@ class CustomerDetailsPanel extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.phone,
-                      color: AppColors.info, size: 18),
+                  const Icon(Icons.phone, color: AppColors.info, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('رقم التليفون',
-                            style: TextStyle(
-                                color: AppColors.textHint, fontSize: 10)),
+                        Text(
+                          l10n.phoneNumberLabel,
+                          style: const TextStyle(color: AppColors.textHint, fontSize: 10),
+                        ),
                         Text(
                           user.phoneNumber!,
                           style: const TextStyle(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'monospace',
-                              fontSize: 14),
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'monospace',
+                            fontSize: 14,
+                          ),
                           textDirection: TextDirection.ltr,
                         ),
                       ],
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.call,
-                        color: AppColors.success, size: 22),
-                    tooltip: 'اتصال',
+                    icon: const Icon(Icons.call, color: AppColors.success, size: 22),
+                    tooltip: l10n.call,
                     onPressed: () => _callPhone(user.phoneNumber!),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.message,
-                        color: Color(0xFF25D366), size: 22),
-                    tooltip: 'واتساب',
+                    icon: const Icon(Icons.message, color: Color(0xFF25D366), size: 22),
+                    tooltip: l10n.openWhatsapp,
                     onPressed: () => _whatsapp(user.phoneNumber!),
                   ),
                 ],
@@ -432,14 +434,14 @@ class CustomerDetailsPanel extends StatelessWidget {
                   color: AppColors.surfaceLight,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.phone_disabled,
-                        color: AppColors.textHint, size: 16),
-                    SizedBox(width: 8),
-                    Text('لا يوجد رقم تليفون مسجل',
-                        style: TextStyle(
-                            color: AppColors.textHint, fontSize: 12)),
+                    const Icon(Icons.phone_disabled, color: AppColors.textHint, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      l10n.noPhoneRegistered,
+                      style: const TextStyle(color: AppColors.textHint, fontSize: 12),
+                    ),
                   ],
                 ),
               ),
@@ -449,35 +451,36 @@ class CustomerDetailsPanel extends StatelessWidget {
     );
   }
 
-  // ════ Address ════
-  Widget _buildAddressSection() {
-    final hasAddress =
-        user.address != null && user.address!.isNotEmpty;
+  Widget _buildAddressSection(BuildContext context) {
+    final l10n = context.l10n;
+    final hasAddress = user.address != null && user.address!.isNotEmpty;
     if (!hasAddress) {
       return _section(
-        title: 'العنوان',
+        title: l10n.customerAddress,
         icon: Icons.location_on,
         accent: AppColors.error,
-        child: const Padding(
-          padding: EdgeInsets.symmetric(vertical: 8),
-          child: Text('لا يوجد عنوان مسجل',
-              style: TextStyle(color: AppColors.textHint)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Text(l10n.noAddressSaved,
+              style: const TextStyle(color: AppColors.textHint)),
         ),
       );
     }
+
     final gps = GpsHelper.extractFromAddress(user.address!);
     final cleanAddress = GpsHelper.cleanAddress(user.address!);
 
     return _section(
-      title: 'العنوان',
+      title: l10n.customerAddress,
       icon: Icons.location_on,
       accent: AppColors.error,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(cleanAddress.isEmpty ? user.address! : cleanAddress,
-              style: const TextStyle(
-                  color: AppColors.textPrimary, fontSize: 13)),
+          Text(
+            cleanAddress.isEmpty ? user.address! : cleanAddress,
+            style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
+          ),
           if (gps != null) ...[
             const SizedBox(height: 10),
             SizedBox(
@@ -485,10 +488,8 @@ class CustomerDetailsPanel extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () => _openMap(gps.googleMapsUrl),
                 icon: const Icon(Icons.map, size: 16),
-                label: const Text('فتح في خرائط جوجل'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                ),
+                label: Text(l10n.openInGoogleMaps),
+                style: OutlinedButton.styleFrom(foregroundColor: AppColors.primary),
               ),
             ),
           ],
@@ -497,10 +498,10 @@ class CustomerDetailsPanel extends StatelessWidget {
     );
   }
 
-  // ════ Stats ════
-  Widget _buildStatsSection(CustomerStats stats) {
+  Widget _buildStatsSection(BuildContext context, CustomerStats stats) {
+    final l10n = context.l10n;
     return _section(
-      title: 'الإحصائيات',
+      title: l10n.statsSectionTitle,
       icon: Icons.bar_chart,
       accent: AppColors.accent,
       child: Column(
@@ -508,16 +509,11 @@ class CustomerDetailsPanel extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _statCard(Icons.shopping_basket, '${stats.totalOrders}',
-                    'إجمالي الطلبات', AppColors.info),
+                child: _statCard(Icons.shopping_basket, '${stats.totalOrders}', l10n.totalOrdersLabel, AppColors.info),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _statCard(
-                    Icons.attach_money,
-                    'L.E ${stats.totalSpent.toStringAsFixed(0)}',
-                    'إجمالي الشراء',
-                    AppColors.success),
+                child: _statCard(Icons.attach_money, 'L.E ${stats.totalSpent.toStringAsFixed(0)}', l10n.totalPurchase, AppColors.success),
               ),
             ],
           ),
@@ -525,21 +521,15 @@ class CustomerDetailsPanel extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _statCard(Icons.check_circle, '${stats.deliveredOrders}',
-                    'مكتمل', AppColors.success),
+                child: _statCard(Icons.check_circle, '${stats.deliveredOrders}', l10n.deliveredLabel, AppColors.success),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _statCard(Icons.cancel, '${stats.cancelledOrders}',
-                    'ملغي', AppColors.error),
+                child: _statCard(Icons.cancel, '${stats.cancelledOrders}', l10n.cancelledLabel, AppColors.error),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _statCard(
-                    Icons.shopping_bag,
-                    'L.E ${stats.averageOrderValue.toStringAsFixed(0)}',
-                    'متوسط الطلب',
-                    AppColors.accent),
+                child: _statCard(Icons.shopping_bag, 'L.E ${stats.averageOrderValue.toStringAsFixed(0)}', l10n.averageOrderLabel, AppColors.accent),
               ),
             ],
           ),
@@ -553,18 +543,19 @@ class CustomerDetailsPanel extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.access_time,
-                      color: AppColors.textHint, size: 16),
+                  const Icon(Icons.access_time, color: AppColors.textHint, size: 16),
                   const SizedBox(width: 8),
-                  Text('آخر طلب: ',
-                      style: const TextStyle(
-                          color: AppColors.textHint, fontSize: 12)),
+                  Text(
+                    l10n.lastOrderLabel,
+                    style: const TextStyle(color: AppColors.textHint, fontSize: 12),
+                  ),
                   Text(
                     _formatDate(stats.lastOrderDate!),
                     style: const TextStyle(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12),
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
@@ -575,19 +566,19 @@ class CustomerDetailsPanel extends StatelessWidget {
     );
   }
 
-  // ════ Latest Orders ════
-  Widget _buildLatestOrders(CustomerStats stats) {
+  Widget _buildLatestOrders(BuildContext context, CustomerStats stats) {
+    final l10n = context.l10n;
     final latest = stats.latestOrders(limit: 5);
     if (latest.isEmpty) {
       return _section(
-        title: 'آخر الطلبات',
+        title: l10n.latestOrdersSectionTitle,
         icon: Icons.history,
         accent: AppColors.primary,
-        child: const Padding(
-          padding: EdgeInsets.symmetric(vertical: 8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
           child: Center(
-            child: Text('لا توجد طلبات سابقة',
-                style: TextStyle(color: AppColors.textHint)),
+            child: Text(l10n.noPreviousOrders,
+                style: const TextStyle(color: AppColors.textHint)),
           ),
         ),
       );
@@ -596,7 +587,7 @@ class CustomerDetailsPanel extends StatelessWidget {
     final numbering = DailyOrderNumbering(stats.userOrders);
 
     return _section(
-      title: 'آخر ${latest.length} طلبات',
+      title: l10n.latestOrders(latest.length),
       icon: Icons.history,
       accent: AppColors.primary,
       trailing: Container(
@@ -605,23 +596,22 @@ class CustomerDetailsPanel extends StatelessWidget {
           color: AppColors.primary,
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Text('${stats.totalOrders}',
-            style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 11)),
+        child: Text(
+          '${stats.totalOrders}',
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+        ),
       ),
       child: Column(
         children: latest.map((order) {
           final dailyNum = numbering.getNumberFor(order.id);
-          return _orderRow(order, dailyNum);
+          return _orderRow(context, order, dailyNum);
         }).toList(),
       ),
     );
   }
 
-  Widget _orderRow(OrderEntity order, int dailyNum) {
-    final statusColor = _orderStatusColor(order.status);
+  Widget _orderRow(BuildContext context, OrderEntity order, int dailyNum) {
+    final statusColor = _orderStatusColor(order);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(10),
@@ -633,8 +623,7 @@ class CustomerDetailsPanel extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: statusColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(6),
@@ -654,16 +643,16 @@ class CustomerDetailsPanel extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${order.orderItems.length} منتج • ${order.itemsCount} قطعة',
+                  context.l10n.productsAndPieces(order.orderItems.length, order.itemsCount),
                   style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12),
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
                 ),
                 Text(
                   _formatDate(order.createdDateTime),
-                  style: const TextStyle(
-                      color: AppColors.textHint, fontSize: 10),
+                  style: const TextStyle(color: AppColors.textHint, fontSize: 10),
                 ),
               ],
             ),
@@ -674,23 +663,24 @@ class CustomerDetailsPanel extends StatelessWidget {
               Text(
                 'L.E ${order.totalAmount.toStringAsFixed(0)}',
                 style: const TextStyle(
-                    color: AppColors.success,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14),
+                  color: AppColors.success,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  _orderStatusLabel(order.status),
+                  _orderStatusLabel(context, order),
                   style: TextStyle(
-                      color: statusColor,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold),
+                    color: statusColor,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -700,8 +690,8 @@ class CustomerDetailsPanel extends StatelessWidget {
     );
   }
 
-  // ════ Actions ════
   Widget _buildActionButtons(BuildContext context) {
+    final l10n = context.l10n;
     final isBlocked = user.isArchived;
     return BlocBuilder<UsersCubit, UsersState>(
       buildWhen: (_, c) => c is UserActionLoading || c is UsersLoaded,
@@ -712,27 +702,22 @@ class CustomerDetailsPanel extends StatelessWidget {
           child: ElevatedButton.icon(
             onPressed: isLoading
                 ? null
-                : () => isBlocked
-                ? _unblockUser(context)
-                : _blockUser(context),
+                : () => isBlocked ? _unblockUser(context) : _blockUser(context),
             icon: isLoading
                 ? const SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(
-                  strokeWidth: 2, color: Colors.white),
-            )
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
                 : Icon(isBlocked ? Icons.lock_open : Icons.block, size: 20),
             label: Text(
               isLoading
-                  ? 'جاري التحديث...'
-                  : (isBlocked ? 'فك حظر العميل' : 'حظر العميل'),
-              style: const TextStyle(
-                  fontSize: 15, fontWeight: FontWeight.bold),
+                  ? l10n.updatingLabel
+                  : (isBlocked ? l10n.unblockUser : l10n.blockUser),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-              isBlocked ? AppColors.success : AppColors.error,
+              backgroundColor: isBlocked ? AppColors.success : AppColors.error,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
           ),
@@ -741,7 +726,6 @@ class CustomerDetailsPanel extends StatelessWidget {
     );
   }
 
-  // ════ Helpers ════
   Widget _section({
     required String title,
     required IconData icon,
@@ -760,8 +744,7 @@ class CustomerDetailsPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -775,20 +758,14 @@ class CustomerDetailsPanel extends StatelessWidget {
                 Container(
                   width: 30,
                   height: 30,
-                  decoration: BoxDecoration(
-                    color: accent,
-                    shape: BoxShape.circle,
-                  ),
+                  decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
                   child: Icon(icon, color: Colors.white, size: 16),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     title,
-                    style: TextStyle(
-                        color: accent,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14),
+                    style: TextStyle(color: accent, fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                 ),
                 if (trailing != null) trailing,
@@ -801,8 +778,7 @@ class CustomerDetailsPanel extends StatelessWidget {
     );
   }
 
-  Widget _statCard(
-      IconData icon, String value, String label, Color color) {
+  Widget _statCard(IconData icon, String value, String label, Color color) {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -818,18 +794,12 @@ class CustomerDetailsPanel extends StatelessWidget {
             fit: BoxFit.scaleDown,
             child: Text(
               value,
-              style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14),
+              style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14),
             ),
           ),
-          Text(
-            label,
-            style: const TextStyle(
-                color: AppColors.textHint, fontSize: 10),
-            textAlign: TextAlign.center,
-          ),
+          Text(label,
+              style: const TextStyle(color: AppColors.textHint, fontSize: 10),
+              textAlign: TextAlign.center),
         ],
       ),
     );
@@ -840,16 +810,17 @@ class CustomerDetailsPanel extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: AppColors.textHint),
         const SizedBox(width: 8),
-        Text('$label: ',
-            style: const TextStyle(
-                color: AppColors.textHint, fontSize: 12)),
+        Text('$label: ', style: const TextStyle(color: AppColors.textHint, fontSize: 12)),
         Expanded(
-          child: Text(value,
-              style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500),
-              overflow: TextOverflow.ellipsis),
+          child: Text(
+            value,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ],
     );
@@ -863,17 +834,29 @@ class CustomerDetailsPanel extends StatelessWidget {
   }
 
   String _formatDate(DateTime dt) {
-    const months = [
-      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
-    ];
     final h = dt.hour.toString().padLeft(2, '0');
     final m = dt.minute.toString().padLeft(2, '0');
-    return '${dt.day} ${months[dt.month - 1]} ${dt.year} - $h:$m';
+    return '${dt.day}/${dt.month}/${dt.year} - $h:$m';
   }
 
-  Color _orderStatusColor(int status) {
-    switch (status) {
+  String _localizedTier(BuildContext context, CustomerTier tier) {
+    final l10n = context.l10n;
+    switch (tier) {
+      case CustomerTier.regular:
+        return l10n.regularTier;
+      case CustomerTier.bronze:
+        return l10n.bronzeTier;
+      case CustomerTier.silver:
+        return l10n.silverTier;
+      case CustomerTier.gold:
+        return l10n.goldTier;
+    }
+  }
+
+  Color _orderStatusColor(OrderEntity order) {
+    if (_isCancelled(order)) return AppColors.error;
+    if (_isDelivered(order)) return AppColors.success;
+    switch (order.status) {
       case 0:
         return AppColors.warning;
       case 1:
@@ -882,31 +865,30 @@ class CustomerDetailsPanel extends StatelessWidget {
         return AppColors.accent;
       case 3:
         return AppColors.primary;
-      case 4:
-        return AppColors.success;
-      case 5:
-        return AppColors.error;
       default:
         return AppColors.textHint;
     }
   }
 
-  String _orderStatusLabel(int status) {
-    switch (status) {
-      case 0:
-        return 'قيد الانتظار';
-      case 1:
-        return 'مؤكد';
-      case 2:
-        return 'قيد التحضير';
-      case 3:
-        return 'في الطريق';
-      case 4:
-        return 'تم التوصيل';
-      case 5:
-        return 'ملغي';
+  String _orderStatusLabel(BuildContext context, OrderEntity order) {
+    final l10n = context.l10n;
+    if (_isCancelled(order)) return l10n.cancelledStatus;
+    if (_isDelivered(order)) return l10n.deliveredStatus;
+
+    final normalizedName = _normalizedStatusName(order);
+    switch (normalizedName) {
+      case 'pending':
+        return l10n.pendingStatus;
+      case 'confirmed':
+        return l10n.confirmedStatus;
+      case 'preparing':
+        return l10n.preparingStatus;
+      case 'outfordelivery':
+      case 'out_for_delivery':
+      case 'في الطريق':
+        return l10n.outForDeliveryStatus;
       default:
-        return 'غير معروف';
+        return order.statusName.isNotEmpty ? order.statusName : l10n.unknown;
     }
   }
 }

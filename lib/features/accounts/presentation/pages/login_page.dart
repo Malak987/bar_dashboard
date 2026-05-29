@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/branch_selection/branch_selection_cubit.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../branches/domain/entities/branch_entity.dart';
+import '../../../branches/presentation/cubit/branches_cubit.dart';
 import '../cubit/auth_cubit.dart';
 
 enum AccountType { cashier, manager, owner }
@@ -20,7 +23,18 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
   bool _rememberMe = false;
   AccountType _accountType = AccountType.owner;
-  String _branch = 'الفرع الرئيسي - وسط البلد';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final branchesCubit = context.read<BranchesCubit>();
+      if (branchesCubit.state is BranchesInitial) {
+        branchesCubit.fetchAllBranches();
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -232,29 +246,80 @@ class _LoginPageState extends State<LoginPage> {
             // ===== الفرع =====
             const _FieldLabel('الفرع'),
             const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              initialValue: _branch,
-              dropdownColor: AppColors.surfaceLight,
-              style: const TextStyle(color: AppColors.textPrimary),
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.store_outlined,
-                    color: AppColors.textHint),
-              ),
-              items: const [
-                DropdownMenuItem(
-                  value: 'الفرع الرئيسي - وسط البلد',
-                  child: Text('الفرع الرئيسي - وسط البلد'),
-                ),
-                DropdownMenuItem(
-                  value: 'فرع المعادي',
-                  child: Text('فرع المعادي'),
-                ),
-                DropdownMenuItem(
-                  value: 'فرع مدينة نصر',
-                  child: Text('فرع مدينة نصر'),
-                ),
-              ],
-              onChanged: (v) => setState(() => _branch = v ?? _branch),
+            BlocBuilder<BranchesCubit, BranchesState>(
+              buildWhen: (previous, current) {
+                return current is BranchesInitial ||
+                    current is BranchesLoading ||
+                    current is BranchesLoaded ||
+                    current is BranchesFailure;
+              },
+              builder: (context, branchesState) {
+                final branches = branchesState is BranchesLoaded
+                    ? branchesState.branches.items
+                    : <BranchEntity>[];
+
+                return BlocBuilder<BranchSelectionCubit, BranchSelectionState>(
+                  builder: (context, selectionState) {
+                    final selectedValue = selectionState.selectedBranchId;
+                    final dropdownValue = selectedValue != null &&
+                            branches.any((branch) => branch.id == selectedValue)
+                        ? selectedValue
+                        : '__all__';
+
+                    return DropdownButtonFormField<String>(
+                      key: ValueKey(dropdownValue),
+                      initialValue: dropdownValue,
+                      dropdownColor: AppColors.surfaceLight,
+                      style: const TextStyle(color: AppColors.textPrimary),
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(
+                          Icons.store_outlined,
+                          color: AppColors.textHint,
+                        ),
+                        suffixIcon: branchesState is BranchesLoading
+                            ? const Padding(
+                                padding: EdgeInsets.all(12),
+                                child: SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              )
+                            : null,
+                      ),
+                      items: [
+                        const DropdownMenuItem(
+                          value: '__all__',
+                          child: Text('كل الفروع'),
+                        ),
+                        ...branches.map(
+                          (branch) => DropdownMenuItem(
+                            value: branch.id,
+                            child: Text(branch.nameAr),
+                          ),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value == null || value == '__all__') {
+                          context
+                              .read<BranchSelectionCubit>()
+                              .selectAllBranches();
+                          return;
+                        }
+
+                        final branch = branches.firstWhere((item) => item.id == value);
+                        context.read<BranchSelectionCubit>().selectBranch(
+                              id: branch.id,
+                              name: branch.nameAr,
+                            );
+                      },
+                    );
+                  },
+                );
+              },
             ),
             const SizedBox(height: 16),
 

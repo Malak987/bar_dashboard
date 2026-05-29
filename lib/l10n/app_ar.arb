@@ -1,0 +1,756 @@
+{
+  "@@locale": "ar",
+  "appTitle": "BAR Sweets - لوحة التحكم",
+  "dashboard": "لوحة التحكم",
+  "dashboardShellSubtitle": "إدارة شاملة لمتابعة العمل",
+  "products": "المنتجات",
+  "categories": "الفئات",
+  "flavors": "النكهات",
+  "inventory": "المخزون",
+  "customers": "العملاء",
+  "employees": "الموظفين",
+  "coupons": "الكوبونات",
+  "reports": "التقارير",
+  "analytics": "التحليلات",
+  "branches": "الفروع",
+  "notifications": "الإشعارات",
+  "activityLog": "سجل النشاط",
+  "settings": "الإعدادات",
+  "orders": "الطلبات",
+  "searchHint": "بحث...",
+  "allBranches": "كل الفروع",
+  "branchClosedLabel": "مغلق",
+  "language": "اللغة",
+  "arabic": "العربية",
+  "english": "الإنجليزية",
+  "owner": "مالك",
+  "logout": "تسجيل الخروج",
+  "userMenu": "قائمة المستخدم",
+  "openNotificationsPage": "فتح صفحة الإشعارات",
+  "lastNotifications": "آخر الإشعارات",
+  "markAllRead": "قراءة الكل",
+  "noNotifications": "لا توجد إشعارات حالياً",
+  "latestActivity": "آخر النشاطات",
+  "openActivityPage": "فتح سجل النشاط",
+  "noActivity": "لا يوجد نشاط حالياً",
+  "headerWelcome": "نظرة عامة",
+  "headerLive": "مباشر",
+  "settingsPageTitle": "الإعدادات",
+  "settingsPageSubtitle": "تحكم كامل في التنبيهات والتحديثات واللغة وسلوك النظام",
+  "settingsSectionLanguage": "اللغة",
+  "settingsSectionNotifications": "الإشعارات والتنبيهات",
+  "settingsSectionLiveUpdates": "التحديثات الحية",
+  "settingsSectionBehavior": "السلوك العام",
+  "settingsSectionSecurity": "الأمان والجلسة",
+  "settingsSectionSystem": "معلومات النظام",
+  "soundEnabledTitle": "تشغيل صوت الإشعارات",
+  "soundEnabledSubtitle": "تشغيل صوت قوي عند وصول طلبات أونلاين جديدة",
+  "pushEnabledTitle": "تفعيل التنبيهات المباشرة",
+  "pushEnabledSubtitle": "إضافة التنبيهات الجديدة مباشرة إلى مركز الإشعارات",
+  "testNotificationSound": "اختبار صوت الإشعار",
+  "testNotificationSoundSubtitle": "اختبر النغمة الحالية للتأكد من أن الصوت مناسب",
+  "testButton": "اختبار",
+  "autoRefreshTitle": "التحديث التلقائي",
+  "autoRefreshSubtitle": "تحديث الطلبات والتنبيهات في الخلفية كل عدة ثوانٍ",
+  "analyticsRealtimeTitle": "تحليلات لحظية",
+  "analyticsRealtimeSubtitle": "تحديث الرسوم والتحليلات بشكل مستمر",
+  "showClosedBranchesTitle": "عرض الفروع المغلقة",
+  "showClosedBranchesSubtitle": "إبقاء الفروع المغلقة ظاهرة في القوائم والاختيارات",
+  "confirmationsTitle": "تأكيد الإجراءات الحساسة",
+  "confirmationsSubtitle": "إظهار رسائل تأكيد عند الأرشفة أو التعديل أو الإلغاء",
+  "compactModeTitle": "وضع عرض مضغوط",
+  "compactModeSubtitle": "تقليل المسافات والهوامش في البطاقات والقوائم",
+  "securityLevelTitle": "مستوى الأمان",
+  "securityLevelSubtitle": "يعتمد النظام حالياً على تخزين توكن الجلسة محلياً. يمكن لاحقاً إضافة التحقق الثنائي وصلاحيات أوسع.",
+  "appVersion": "نسخة التطبيق",
+  "systemStatus": "حالة النظام",
+  "systemReady": "جاهز",
+  "notificationSoundTestTitle": "اختبار الصوت",
+  "notificationSoundTestBody": "تم تشغيل صوت الإشعار بنجاح.",
+  "notificationSoundTestLog": "تم اختبار صوت الإشعار من صفحة الإعدادات.",
+  "goToNotifications": "الإشعارات",
+  "goToSettings": "الإعدادات",
+  "goToActivity": "سجل النشاط",
+  "changeLanguage": "تغيير اللغة",
+  "unreadCount": "غير مقروء",
+  "viewAll": "عرض الكل",
+  "ordersPageSubtitle": "إدارة طلبات العملاء",
+  "totalLabel": "إجمالي",
+  "inProgressLabel": "قيد التنفيذ",
+  "refreshingLabel": "تحديث...",
+  "liveLabel": "مباشر",
+  "ordersSearchHint": "ابحث برقم الطلب، اسم العميل، العنوان...",
+  "allStatuses": "كل الحالات",
+  "selectOrderToView": "اختر طلباً لعرض تفاصيله",
+  "noMatchingResults": "لا توجد نتائج مطابقة",
+  "noOrdersYet": "لا توجد طلبات بعد",
+  "noOrdersForSelectedBranch": "لا توجد طلبات في الفرع المحدد أو أن الطلبات الحالية غير مربوطة بفرع من الباك إند",
+  "retry": "إعادة المحاولة",
+  "singleNewOrderArrived": "🎉 طلب جديد وصل!",
+  "multipleNewOrdersArrived": "🎉 {count} طلبات جديدة وصلت!",
+  "@multipleNewOrdersArrived": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noCustomersYet": "لا يوجد عملاء حالياً",
+  "noCustomersForSelectedBranch": "لا يوجد عملاء لديهم طلبات في الفرع المحدد أو أن الطلبات الحالية غير مربوطة بفرع",
+  "noCustomersInSelectedBranch": "لا يوجد عملاء في الفرع المحدد",
+  "selectCustomerFromList": "اختر عميل من القائمة",
+  "viewDetailsAndStats": "لعرض التفاصيل والإحصائيات",
+  "reload": "إعادة تحميل",
+  "branchesPageSubtitle": "إدارة الفروع وحالة التشغيل",
+  "openBranchesShortLabel": "مفتوح",
+  "closedBranchesShortLabel": "مغلق",
+  "newBranch": "فرع جديد",
+  "branchesSearchHint": "ابحث عن فرع أو رقم هاتف أو عنوان...",
+  "allBranchesFilter": "كل الفروع",
+  "openBranchesFilter": "الفروع المفتوحة",
+  "closedBranchesFilter": "الفروع المغلقة",
+  "branchArchiveTitle": "إيقاف الفرع",
+  "branchArchiveMessage": "هل تريد إيقاف فرع \"{branchName}\"؟ لن يتم حذفه من القائمة، لكنه سيظهر بحالة مغلق.",
+  "@branchArchiveMessage": {
+    "placeholders": {
+      "branchName": {
+        "type": "String"
+      }
+    }
+  },
+  "cancel": "إلغاء",
+  "closeBranch": "إيقاف",
+  "noBranchesYet": "لا توجد فروع بعد",
+  "noClosedBranches": "لا توجد فروع مغلقة",
+  "noMatchingBranches": "لا توجد نتائج مطابقة",
+  "addNewBranch": "إضافة فرع جديد",
+  "print": "طباعة",
+  "preview": "معاينة",
+  "savePdf": "حفظ PDF",
+  "share": "مشاركة",
+  "invoice": "الفاتورة",
+  "invoiceActionsSubtitle": "طباعة، حفظ، أو مشاركة الفاتورة",
+  "orderStatusTitle": "حالة الطلب",
+  "customerData": "بيانات العميل",
+  "customerDataSubtitle": "معلومات صاحب الطلب",
+  "customerId": "ID",
+  "deliveryAddress": "عنوان التوصيل",
+  "withGps": "مع إحداثيات GPS",
+  "noAddressEntered": "لا يوجد عنوان مدخل",
+  "accurateCoordinates": "إحداثيات دقيقة",
+  "openGoogleMaps": "فتح في خرائط جوجل",
+  "preparationBranch": "فرع التحضير",
+  "preparationBranchSubtitle": "الفرع المسؤول عن هذا الطلب",
+  "orderItems": "الأصناف المطلوبة",
+  "productsAndPieces": "{products} منتج / {pieces} قطعة",
+  "@productsAndPieces": {
+    "placeholders": {
+      "products": {
+        "type": "int"
+      },
+      "pieces": {
+        "type": "int"
+      }
+    }
+  },
+  "subtotal": "المجموع الفرعي",
+  "deliveryFee": "رسوم التوصيل",
+  "discount": "الخصم",
+  "finalTotal": "الإجمالي النهائي",
+  "totals": "الحسابات",
+  "totalsSubtitle": "ملخص المبالغ",
+  "customerNotes": "ملاحظات العميل",
+  "specialInstructions": "تعليمات خاصة بالطلب",
+  "emailLabel": "البريد الإلكتروني",
+  "phoneLabel": "رقم التليفون",
+  "call": "اتصال",
+  "whatsapp": "واتساب",
+  "noPhoneRegistered": "لا يوجد رقم تليفون مسجل",
+  "address": "العنوان",
+  "noAddressRegistered": "لا يوجد عنوان مسجل",
+  "stats": "الإحصائيات",
+  "totalOrdersLabel": "إجمالي الطلبات",
+  "totalPurchase": "إجمالي الشراء",
+  "completed": "مكتمل",
+  "cancelled": "ملغي",
+  "averageOrder": "متوسط الطلب",
+  "lastOrder": "آخر طلب",
+  "latestOrders": "آخر {count} طلبات",
+  "@latestOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noPreviousOrders": "لا توجد طلبات سابقة",
+  "blockUser": "حظر العميل",
+  "unblockUser": "فك حظر العميل",
+  "updatingLabel": "جاري التحديث...",
+  "customerBlockedInfo": "هذا العميل محظور من إجراء طلبات جديدة",
+  "suspiciousCancellationRate": "⚠️ نسبة إلغاء عالية: {rate}% من الطلبات",
+  "@suspiciousCancellationRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "contact": "التواصل",
+  "latestOrderPrefix": "آخر طلب: ",
+  "phoneDisabled": "لا يوجد رقم مسجل",
+  "branchStatusOpen": "مفتوح",
+  "branchStatusClosed": "مغلق",
+  "edit": "تعديل",
+  "reopenBranch": "إعادة فتح الفرع",
+  "pauseBranch": "إيقاف الفرع",
+  "branchFormEditTitle": "تعديل الفرع",
+  "branchFormAddTitle": "إضافة فرع جديد",
+  "branchNameAr": "اسم الفرع بالعربية *",
+  "branchNameEn": "اسم الفرع بالإنجليزية *",
+  "phoneRequired": "رقم الهاتف *",
+  "addressAr": "العنوان بالعربية *",
+  "addressEn": "العنوان بالإنجليزية *",
+  "descriptionAr": "الوصف بالعربية *",
+  "descriptionEn": "الوصف بالإنجليزية *",
+  "branchCloseInfo": "إيقاف الفرع لا يحذفه من القائمة، لكنه يبقى ظاهرًا بحالة مغلق.",
+  "saveChanges": "حفظ التعديلات",
+  "addingBranch": "إضافة الفرع",
+  "saving": "جاري الحفظ...",
+  "fieldRequired": "هذا الحقل مطلوب",
+  "invalidPhone": "رقم الهاتف غير صحيح",
+  "blocked": "محظور",
+  "orderTotal": "الإجمالي",
+  "quantityLabel": "الكمية: {count}",
+  "@quantityLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "otherProductsCount": "+ {count} منتج آخر",
+  "@otherProductsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productDeleted": "منتج محذوف",
+  "now": "الآن",
+  "minutesAgo": "منذ {count} د",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayTime": "اليوم {time}",
+  "@todayTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "yesterdayTime": "أمس {time}",
+  "@yesterdayTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "daysAgo": "منذ {count} أيام",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sizeLabel": "الحجم: {size}",
+  "@sizeLabel": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "inProgressStatus": "قيد التنفيذ",
+  "pendingStatus": "قيد الانتظار",
+  "confirmedStatus": "مؤكد",
+  "preparingStatus": "قيد التحضير",
+  "outForDeliveryStatus": "في الطريق",
+  "deliveredStatus": "تم التوصيل",
+  "cancelledStatus": "ملغي",
+  "unknown": "غير معروف",
+  "confirmBlock": "حظر العميل",
+  "blockReason": "سبب الحظر:",
+  "customReasonOptional": "تفاصيل إضافية (اختياري)",
+  "writeReasonHint": "اكتب أي تفاصيل تخص الحظر...",
+  "customerWillBeBlocked": "العميل لن يقدر يعمل طلبات جديدة لحد ما تفك الحظر",
+  "confirmBlockAction": "تأكيد الحظر",
+  "selectOrWriteReason": "يرجى اختيار أو كتابة سبب الحظر",
+  "reasonTooManyCancels": "كثرة إلغاء الطلبات",
+  "reasonBadComments": "عميل مزعج / تعليقات سيئة",
+  "reasonFraud": "محاولات احتيال",
+  "reasonNoPickup": "عدم استلام الطلبات المؤكدة",
+  "reasonCashRefusal": "رفض الدفع عند الاستلام",
+  "reasonBadBehavior": "سلوك غير لائق",
+  "reasonOther": "سبب آخر",
+  "unblockTitle": "فك الحظر",
+  "unblockMessage": "هل تريد فك حظر \"{name}\"؟ سيقدر العميل يطلب من جديد.",
+  "@unblockMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "viewDetailsAndStatistics": "لعرض التفاصيل والإحصائيات",
+  "orderStatusLabel": "حالة الطلب",
+  "deliveredSuccessTitle": "✓ تم توصيل الطلب بنجاح",
+  "deliveredSuccessSubtitle": "الطلب مكتمل ووصل للعميل",
+  "cancelledOrderTitle": "🚫 تم إلغاء هذا الطلب",
+  "cancelledOrderSubtitle": "لا يمكن تغيير حالة الطلب الملغي",
+  "goToNextStatus": "انتقل إلى: {status}",
+  "@goToNextStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelOrder": "إلغاء الطلب",
+  "confirmCancellation": "تأكيد الإلغاء",
+  "cancelOrderConfirmMessage": "هل أنت متأكد من إلغاء هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.",
+  "backAction": "تراجع",
+  "cancelOrderAction": "إلغاء الطلب",
+  "customerSectionTitle": "بيانات العميل",
+  "customerSectionSubtitle": "معلومات صاحب الطلب",
+  "deliveryAddressTitle": "عنوان التوصيل",
+  "deliveryAddressSubtitle": "بيانات موقع التوصيل",
+  "preparationBranchTitle": "فرع التحضير",
+  "invoiceSectionTitle": "الفاتورة",
+  "invoiceSectionSubtitle": "طباعة، حفظ، أو مشاركة الفاتورة",
+  "itemsSectionTitle": "الأصناف المطلوبة",
+  "totalsSectionTitle": "الحسابات",
+  "totalsSectionSubtitle": "ملخص المبالغ",
+  "notesSectionTitle": "ملاحظات العميل",
+  "notesSectionSubtitle": "تعليمات خاصة بالطلب",
+  "exactGps": "إحداثيات دقيقة",
+  "openInGoogleMaps": "فتح في خرائط جوجل",
+  "branchPhones": "أرقام الفرع",
+  "sizePrefix": "الحجم: {size}",
+  "@sizePrefix": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "flavorsPrefix": "النكهات: {flavors}",
+  "@flavorsPrefix": {
+    "placeholders": {
+      "flavors": {
+        "type": "String"
+      }
+    }
+  },
+  "subtotalLabel": "المجموع الفرعي",
+  "deliveryFeeLabel": "رسوم التوصيل",
+  "discountLabel": "الخصم",
+  "finalTotalLabel": "الإجمالي النهائي",
+  "customerContact": "التواصل",
+  "customerAddress": "العنوان",
+  "noAddressSaved": "لا يوجد عنوان مسجل",
+  "statsSectionTitle": "الإحصائيات",
+  "latestOrdersSectionTitle": "آخر الطلبات",
+  "averageOrderLabel": "متوسط الطلب",
+  "deliveredLabel": "مكتمل",
+  "cancelledLabel": "ملغي",
+  "lastOrderLabel": "آخر طلب: ",
+  "blockCustomerAction": "حظر العميل",
+  "unblockCustomerAction": "فك حظر العميل",
+  "customerBlockedBanner": "هذا العميل محظور من إجراء طلبات جديدة",
+  "openWhatsapp": "واتساب",
+  "regularTier": "عادي",
+  "bronzeTier": "برونزي",
+  "silverTier": "فضي",
+  "goldTier": "ذهبي",
+  "phoneNumberLabel": "رقم التليفون",
+  "emailAddressLabel": "البريد الإلكتروني",
+  "reportsPageSubtitle": "تقارير تشغيلية وإدارية مفصلة حسب الفرع المختار",
+  "reportExecutiveHeaderAll": "تقرير تنفيذي - جميع الفروع",
+  "reportExecutiveHeaderBranch": "تقرير تنفيذي - {branchName}",
+  "@reportExecutiveHeaderBranch": {
+    "placeholders": {
+      "branchName": {
+        "type": "String"
+      }
+    }
+  },
+  "reportExecutiveDescription": "هذا التقرير مصمم للإدارة ويعرض الأداء المالي والتشغيلي والعملاء والفروع في لوحة واحدة متكاملة.",
+  "reportMissingBranchData": "بيانات الطلبات المرتبطة بالفروع غير متاحة حالياً من الـ API، لذلك تقارير الفروع المحددة ستظل محدودة حتى يرجع الباك إند branchId أو branchName.",
+  "activeCustomersLabel": "عملاء نشطون",
+  "repeatCustomersLabel": "عملاء متكررون",
+  "financialReportTitle": "التقرير المالي",
+  "todayRevenueLabel": "إيراد اليوم",
+  "weekRevenueLabel": "إيراد الأسبوع",
+  "monthRevenueLabel": "إيراد الشهر",
+  "averageOrderValueLabel": "متوسط قيمة الطلب",
+  "completedOrdersLabel": "الطلبات المكتملة",
+  "cancelledOrdersCountLabel": "الطلبات الملغية",
+  "customersReportTitle": "تقرير العملاء",
+  "noEnoughCustomerData": "لا توجد بيانات عملاء كافية حتى الآن",
+  "ordersCountWord": "طلب",
+  "branchesReportTitle": "تقرير الفروع",
+  "branchesOverview": "إجمالي الفروع: {total} | المفتوحة: {open} | المغلقة: {closed}",
+  "@branchesOverview": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "open": {
+        "type": "int"
+      },
+      "closed": {
+        "type": "int"
+      }
+    }
+  },
+  "branchDistributionUnavailable": "لا يمكن استخراج توزيع الطلبات على الفروع لأن الطلبات الحالية لا تحتوي على بيانات الفرع من الـ API.",
+  "recommendationsTitle": "توصيات تشغيلية",
+  "noCriticalRecommendations": "لا توجد توصيات حرجة حالياً.",
+  "recommendationCancelledOrders": "ينصح بمراجعة أسباب الإلغاء لأن عدد الطلبات الملغية الحالي هو {count}.",
+  "@recommendationCancelledOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recommendationLowActiveCustomers": "العملاء النشطون قليلون نسبيًا؛ يفضّل تفعيل عروض موجهة للعملاء المتكررين.",
+  "recommendationBranchBalance": "راجع توزيع التشغيل بين الفروع لضمان توازن الأحمال خصوصاً في أوقات الذروة.",
+  "recommendationAverageOrder": "متوسط الطلب الحالي {amount} جنيه؛ يمكن استخدامه لتصميم عروض الزيادة الشرائية.",
+  "@recommendationAverageOrder": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsPageSubtitle": "لوحات تحليل متقدمة للماليات والعملاء والموظفين والمبيعات والفروع والطلبات",
+  "financialTab": "مالية",
+  "customersTab": "العملاء",
+  "employeesTab": "الموظفين",
+  "salesTab": "المبيعات",
+  "branchesTab": "الفروع",
+  "ordersTab": "الطلبات",
+  "analyticsScopeAll": "التحليل الحالي: كل الفروع",
+  "analyticsScopeBranch": "التحليل الحالي: {branchName}",
+  "@analyticsScopeBranch": {
+    "placeholders": {
+      "branchName": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsScopeDescription": "هذه الصفحة تجمع تحليلات متعددة التخصصات مبنية على بيانات الطلبات والعملاء والفروع المتاحة حالياً.",
+  "analyticsMissingBranchData": "الطلبات الحالية لا ترجع branchId/branchName، لذلك التحليل حسب الفرع سيظل محدوداً حتى يربط الباك إند الطلبات بالفروع.",
+  "totalRevenueKpi": "إجمالي الإيرادات",
+  "todayRevenueKpi": "إيراد اليوم",
+  "weekRevenueKpi": "إيراد الأسبوع",
+  "monthRevenueKpi": "إيراد الشهر",
+  "orderCountKpi": "عدد الطلبات",
+  "totalCustomersKpi": "إجمالي العملاء",
+  "activeCustomersKpi": "عملاء نشطون",
+  "repeatCustomersKpi": "عملاء متكررون",
+  "vipCustomersKpi": "VIP",
+  "topSpendingCustomersTitle": "أفضل العملاء إنفاقاً",
+  "employeesAnalyticsEstimatedTitle": "تحليلات الموظفين (تقديرية)",
+  "employeesEstimatedSubtitle": "لا يوجد حتى الآن API فعلي للموظفين، لذلك الأرقام التالية تشغيلية تقديرية مبنية على ضغط الطلبات وعدد الفروع المفتوحة.",
+  "neededCashiers": "كاشير مطلوب",
+  "neededKitchen": "مطبخ مطلوب",
+  "neededDelivery": "توصيل مطلوب",
+  "loadPerBranch": "ضغط لكل فرع",
+  "topProductsTitle": "أفضل المنتجات",
+  "openBranchesKpi": "الفروع المفتوحة",
+  "closedBranchesKpi": "الفروع المغلقة",
+  "totalBranchesKpi": "إجمالي الفروع",
+  "linkedOrdersToBranch": "الطلبات المرتبطة بفرع",
+  "branchLinkWarningTitle": "تنبيه ربط الفروع",
+  "branchDistributionTitle": "توزيع الطلبات على الفروع",
+  "inProgressOrdersKpi": "قيد التنفيذ",
+  "completionRateKpi": "نسبة الاكتمال",
+  "cancellationRateKpi": "نسبة الإلغاء",
+  "revenueChartTitle": "إيرادات الأسبوع",
+  "revenueChartSubtitle": "أداء المبيعات خلال آخر 7 أيام",
+  "noDataLabel": "لا توجد بيانات",
+  "ordersByStatusTitle": "الطلبات حسب الحالة",
+  "ordersByStatusSubtitle": "توزيع الطلبات الحالية",
+  "noOrdersLabel": "لا توجد طلبات",
+  "topProductsChartTitle": "أكثر المنتجات مبيعاً",
+  "topProductsChartSubtitle": "Top 5 المنتجات الأكثر طلباً",
+  "totalOrdersWord": "إجمالي الطلبات",
+  "requestWord": "طلبات",
+  "activityPageSubtitle": "Timeline كامل لكل العمليات والتنبيهات والتحديثات",
+  "eventsWord": "حدث",
+  "clearLog": "تنظيف السجل",
+  "overallLabel": "الإجمالي",
+  "warningsLabel": "تحذيرات",
+  "criticalLabel": "حرج",
+  "allFilter": "الكل",
+  "systemLabel": "النظام",
+  "loginLabel": "الدخول",
+  "notificationsPageSubtitle": "تنبيهات الطلبات والحالات الحرجة والتحديثات",
+  "markAllReadAction": "تمييز الكل كمقروء",
+  "unreadLabel": "غير المقروء",
+  "todayLabel": "اليوم",
+  "ordersFilter": "الطلبات",
+  "branchesFilter": "الفروع",
+  "customersFilter": "العملاء",
+  "clearList": "تنظيف القائمة",
+  "alertLabel": "تنبيه",
+  "activityTypeOrder": "طلب",
+  "activityTypeBranch": "فرع",
+  "activityTypeUser": "عميل",
+  "activityTypeSystem": "نظام",
+  "activityTypeSettings": "إعداد",
+  "dashboardPageTitle": "لوحة التحكم",
+  "dashboardPageSubtitle": "ملخص أعمال اليوم",
+  "autoRefreshEnabledLabel": "🟢 التحديث التلقائي مُفعّل",
+  "autoRefreshingLabel": "🔄 جاري التحديث...",
+  "everySeconds": "(كل {seconds} ثانية)",
+  "@everySeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "lastUpdateLabel": "آخر تحديث: {time}",
+  "@lastUpdateLabel": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "updatedSuccessfully": "✅ تم التحديث",
+  "dashboardWelcomeSubtitle": "ملخص أعمال اليوم ✨",
+  "totalRevenueLabel": "إجمالي الإيرادات",
+  "allPeriodsLabel": "كل الفترات",
+  "weeklySalesLabel": "مبيعات الأسبوع",
+  "last7DaysLabel": "آخر 7 أيام",
+  "averageOrderValueKpi": "متوسط قيمة الطلب",
+  "availableProductsLabel": "منتج متاح",
+  "categoriesCountLabel": "فئة",
+  "recentOrdersTitle": "آخر الطلبات",
+  "recentOrdersSubtitle": "أحدث المعاملات",
+  "noOrdersForBranch": "لا توجد طلبات في الفرع المحدد",
+  "productsPageTitle": "المنتجات",
+  "productsPageSubtitle": "إدارة منتجات المتجر",
+  "availableLabel": "متاح",
+  "soldOutLabel": "Sold Out",
+  "newProduct": "منتج جديد",
+  "productsSearchHint": "ابحث عن منتج...",
+  "allFilterProducts": "الكل",
+  "activeOnlyFilter": "المتاحة فقط",
+  "soldOutOnlyFilter": "Sold Out فقط",
+  "confirmSoldOutTitle": "تأكيد Sold Out",
+  "confirmSoldOutMessage": "هل تريد تحديد \"{name}\" كـ Sold Out؟ سيظهر للعملاء كمنتج غير متاح حالياً.",
+  "@confirmSoldOutMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "soldOutAction": "Sold Out",
+  "noProductsYet": "لا توجد منتجات بعد",
+  "noSoldOutProducts": "لا توجد منتجات Sold Out",
+  "addNewProduct": "إضافة منتج جديد",
+  "featuredLabel": "مميز",
+  "bestSellerLabel": "الأكثر مبيعاً",
+  "customizableLabel": "قابل للتخصيص",
+  "availableStatus": "متاح",
+  "soldOutStatus": "Sold Out",
+  "sizesCount": "{count} حجم",
+  "@sizesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flavorsCount": "{count} نكهة",
+  "@flavorsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "enableProductForSale": "إتاحة المنتج للبيع",
+  "editProduct": "تعديل المنتج",
+  "markAsSoldOut": "تحديد كـ Sold Out",
+  "productDetailsBack": "رجوع",
+  "basePriceLabel": "السعر الأساسي",
+  "categoryLabel": "الفئة",
+  "descriptionLabel": "الوصف",
+  "availableSizesTitle": "الأحجام المتاحة",
+  "noSizesAdded": "لا توجد أحجام مضافة",
+  "availableFlavorsTitle": "النكهات المتاحة",
+  "noFlavorsAdded": "لا توجد نكهات مضافة",
+  "productWizardEditTitle": "تعديل المنتج",
+  "productWizardAddTitle": "إضافة منتج جديد",
+  "wizardStepBasic": "البيانات الأساسية",
+  "wizardStepSizes": "الأحجام",
+  "wizardStepFlavors": "النكهات",
+  "selectCategoryError": "اختر فئة",
+  "selectProductImageError": "اختر صورة للمنتج",
+  "nameArField": "الاسم بالعربية *",
+  "nameEnField": "الاسم بالإنجليزية *",
+  "descriptionArField": "الوصف بالعربية *",
+  "descriptionEnField": "الوصف بالإنجليزية *",
+  "defaultSizeNameField": "اسم الحجم الافتراضي",
+  "basePriceField": "السعر الأساسي *",
+  "featuredOptionTitle": "مميز ⭐",
+  "featuredOptionSubtitle": "يظهر في قسم المميزة",
+  "bestSellerOptionTitle": "الأكثر مبيعاً 🔥",
+  "bestSellerOptionSubtitle": "يظهر في الأكثر مبيعاً",
+  "customizableOptionTitle": "قابل للتخصيص 🎨",
+  "customizableOptionSubtitle": "يحتوي على أحجام/نكهات",
+  "saveAndNextSizes": "حفظ والمتابعة للأحجام",
+  "saveAndContinueSizesLoading": "جاري الحفظ...",
+  "pickProductImage": "اضغط لاختيار صورة المنتج *",
+  "requiredFieldShort": "مطلوب",
+  "noCategoriesFirst": "لا توجد فئات. أضف فئة أولاً.",
+  "categoryField": "الفئة *",
+  "mustChooseCategory": "يجب اختيار فئة",
+  "productSizeAddedSuccess": "تم إضافة {count} حجم بنجاح",
+  "@productSizeAddedSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productSizesTitle": "الأحجام المتاحة للمنتج",
+  "productSizesSubtitle": "أضف الأحجام مع السعر والأبعاد",
+  "addSize": "إضافة حجم",
+  "existingSizes": "الأحجام الموجودة:",
+  "noSizesAddedYet": "لا توجد أحجام مضافة بعد",
+  "skipIfNoSizes": "يمكنك تخطي هذه الخطوة لو المنتج بدون أحجام",
+  "previous": "السابق",
+  "savingSizes": "جاري حفظ الأحجام...",
+  "skipToFlavors": "تخطي للنكهات",
+  "saveSizesAndContinue": "حفظ {count} حجم والمتابعة",
+  "@saveSizesAndContinue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addSizeDialogTitle": "إضافة حجم",
+  "sizeImageOptional": "صورة الحجم (اختياري)",
+  "sizeNameArField": "الاسم AR *",
+  "sizeNameEnField": "الاسم EN *",
+  "sizeTokenField": "SizeName (مثل: S/M/L)",
+  "sizeDescriptionArField": "الوصف AR",
+  "sizeDescriptionEnField": "الوصف EN",
+  "priceField": "السعر *",
+  "radiusField": "نصف القطر",
+  "heightField": "الارتفاع",
+  "servesField": "يخدم (مثل: 4-6 أشخاص)",
+  "availableSwitch": "متاح",
+  "addSizeAction": "إضافة الحجم",
+  "availableFlavorsChooseTitle": "اختر النكهات المتاحة",
+  "availableFlavorsChooseSubtitle": "حدد النكهات وضع سعر إضافي اختياري",
+  "noFlavorsAvailable": "لا توجد نكهات متاحة.\nأضف نكهات أولاً من صفحة النكهات.",
+  "extraPriceField": "سعر إضافي",
+  "saveAndFinishFlavorsLoading": "جاري الحفظ...",
+  "finishWithoutFlavors": "إنهاء بدون نكهات",
+  "saveFlavorsAndFinish": "حفظ {count} نكهة وإنهاء",
+  "@saveFlavorsAndFinish": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoriesPageSubtitle": "تنظيم منتجاتك في فئات",
+  "newCategory": "فئة جديدة",
+  "searchCategoryHint": "ابحث عن فئة...",
+  "activeCategoriesFilter": "النشطة",
+  "archivedCategoriesFilter": "المؤرشفة",
+  "confirmArchiveTitle": "تأكيد الأرشفة",
+  "categoryArchiveMessage": "هل أنت متأكد من أرشفة فئة \"{name}\"؟\nعدد المنتجات بها: {count}",
+  "@categoryArchiveMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "archiveAction": "أرشفة",
+  "noArchivedCategories": "لا توجد فئات مؤرشفة",
+  "noCategoriesAvailable": "لا توجد فئات بعد",
+  "addCategoryAction": "إضافة فئة",
+  "archivedBadge": "مؤرشفة",
+  "productsCountLabel": "{count} منتج",
+  "@productsCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chooseImageRequired": "يجب اختيار صورة",
+  "editCategoryTitle": "تعديل فئة",
+  "addCategoryTitle": "إضافة فئة جديدة",
+  "saveCategoryChanges": "حفظ التعديلات",
+  "addCategoryButton": "إضافة الفئة",
+  "changeImageTap": "اضغط لتغيير الصورة",
+  "pickCategoryImage": "اضغط لاختيار صورة الفئة *",
+  "flavorsPageSubtitle": "إدارة نكهات المنتجات",
+  "availableFlavorsLabel": "متاحة",
+  "archivedFlavorsLabel": "مؤرشفة",
+  "newFlavor": "نكهة جديدة",
+  "searchFlavorHint": "ابحث عن نكهة...",
+  "availableFilter": "المتاحة",
+  "unavailableFilter": "غير المتاحة",
+  "archivedFilter": "المؤرشفة",
+  "confirmFlavorArchiveTitle": "تأكيد الأرشفة",
+  "flavorArchiveMessage": "هل أنت متأكد من أرشفة نكهة \"{name}\"؟",
+  "@flavorArchiveMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noArchivedFlavors": "لا توجد نكهات مؤرشفة",
+  "allFlavorsAvailableLabel": "كل النكهات متاحة 👍",
+  "noFlavorsCreated": "لا توجد نكهات بعد",
+  "addFlavorAction": "إضافة نكهة",
+  "flavorArchivedBadge": "مؤرشف",
+  "flavorUnavailableBadge": "غير متاح",
+  "flavorAvailableBadge": "متاح",
+  "editFlavorTitle": "تعديل نكهة",
+  "addFlavorTitle": "إضافة نكهة جديدة",
+  "availableForSelectionTitle": "متاحة للاختيار ✓",
+  "availableForSelectionSubtitle": "العملاء يقدروا يختاروا النكهة دي",
+  "saveFlavorChanges": "حفظ التعديلات",
+  "addFlavorButton": "إضافة النكهة",
+  "pickOptionalImage": "اضغط لاختيار صورة (اختياري)",
+  "basicInfoSavedNextSizes": "حفظ والمتابعة للأحجام"
+}

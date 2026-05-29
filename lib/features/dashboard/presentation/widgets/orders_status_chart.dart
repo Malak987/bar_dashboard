@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../utils/dashboard_calculations.dart';
 
@@ -9,17 +10,23 @@ class OrdersStatusChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final data = calc.getOrdersStatusBreakdown();
+    final l10n = context.l10n;
+    final data = {
+      l10n.pendingStatus: calc.getOrdersStatusBreakdown()[Localizations.localeOf(context).languageCode == 'ar' ? 'قيد الانتظار' : 'قيد الانتظار'] ?? 0,
+      l10n.confirmedStatus: calc.getOrdersStatusBreakdown()['مؤكد'] ?? 0,
+      l10n.preparingStatus: calc.getOrdersStatusBreakdown()['قيد التحضير'] ?? 0,
+      l10n.outForDeliveryStatus: calc.getOrdersStatusBreakdown()['في الطريق'] ?? 0,
+      l10n.deliveredStatus: calc.getOrdersStatusBreakdown()['تم التوصيل'] ?? 0,
+      l10n.cancelledStatus: calc.getOrdersStatusBreakdown()['ملغي'] ?? 0,
+    };
     final total = data.values.fold(0, (a, b) => a + b);
-
-    // ألوان لكل حالة
     final colors = {
-      'قيد الانتظار': AppColors.warning,
-      'مؤكد': AppColors.info,
-      'قيد التحضير': AppColors.accent,
-      'في الطريق': AppColors.primary,
-      'تم التوصيل': AppColors.success,
-      'ملغي': AppColors.error,
+      l10n.pendingStatus: AppColors.warning,
+      l10n.confirmedStatus: AppColors.info,
+      l10n.preparingStatus: AppColors.accent,
+      l10n.outForDeliveryStatus: AppColors.primary,
+      l10n.deliveredStatus: AppColors.success,
+      l10n.cancelledStatus: AppColors.error,
     };
 
     return Container(
@@ -34,35 +41,34 @@ class OrdersStatusChart extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'الطلبات حسب الحالة',
-                    style: TextStyle(
+                    l10n.ordersByStatusTitle,
+                    style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                   Text(
-                    'توزيع الطلبات الحالية',
-                    style: TextStyle(
-                        color: AppColors.textSecondary, fontSize: 11),
+                    l10n.ordersByStatusSubtitle,
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
                   ),
                 ],
               ),
-              Icon(Icons.pie_chart_outline, color: AppColors.primary),
+              const Icon(Icons.pie_chart_outline, color: AppColors.primary),
             ],
           ),
           const SizedBox(height: 16),
           if (total == 0)
-            const SizedBox(
+            SizedBox(
               height: 200,
               child: Center(
-                child: Text('لا توجد طلبات',
-                    style: TextStyle(color: AppColors.textHint)),
+                child: Text(l10n.noOrdersLabel,
+                    style: const TextStyle(color: AppColors.textHint)),
               ),
             )
           else
@@ -74,9 +80,7 @@ class OrdersStatusChart extends StatelessWidget {
                     PieChartData(
                       sectionsSpace: 3,
                       centerSpaceRadius: 55,
-                      sections: data.entries
-                          .where((e) => e.value > 0)
-                          .map((e) {
+                      sections: data.entries.where((e) => e.value > 0).map((e) {
                         final percent = (e.value / total * 100);
                         return PieChartSectionData(
                           value: e.value.toDouble(),
@@ -104,10 +108,9 @@ class OrdersStatusChart extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const Text(
-                          'إجمالي الطلبات',
-                          style: TextStyle(
-                              color: AppColors.textSecondary, fontSize: 10),
+                        Text(
+                          l10n.totalOrdersWord,
+                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
                         ),
                       ],
                     ),
@@ -116,18 +119,15 @@ class OrdersStatusChart extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 12),
-          // Legend
           Wrap(
             spacing: 8,
             runSpacing: 8,
             alignment: WrapAlignment.center,
             children: data.entries.where((e) => e.value > 0).map((e) {
               return Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (colors[e.key] ?? AppColors.primary)
-                      .withValues(alpha: 0.15),
+                  color: (colors[e.key] ?? AppColors.primary).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(

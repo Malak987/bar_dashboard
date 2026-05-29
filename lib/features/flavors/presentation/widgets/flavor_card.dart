@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/flavor_entity.dart';
 
@@ -20,6 +21,11 @@ class FlavorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    final flavorName = isArabic ? flavor.nameAr : flavor.nameEn;
+    final description = isArabic ? flavor.descriptionAr : flavor.descriptionEn;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -36,33 +42,29 @@ class FlavorCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ═════ Image ═════
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                   child: AspectRatio(
                     aspectRatio: 16 / 10,
                     child: flavor.fullImageUrl != null
                         ? Image.network(
-                      flavor.fullImageUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _placeholder(),
-                      loadingBuilder: (_, child, p) => p == null
-                          ? child
-                          : Container(
-                        color: AppColors.surfaceLight,
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                              color: AppColors.primary),
-                        ),
-                      ),
-                    )
+                            flavor.fullImageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => _placeholder(),
+                            loadingBuilder: (_, child, p) => p == null
+                                ? child
+                                : Container(
+                                    color: AppColors.surfaceLight,
+                                    child: const Center(
+                                      child: CircularProgressIndicator(color: AppColors.primary),
+                                    ),
+                                  ),
+                          )
                         : _placeholder(),
                   ),
                 ),
-                // Top badges
                 Positioned(
                   top: 8,
                   right: 8,
@@ -70,25 +72,23 @@ class FlavorCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       if (flavor.isArchived)
-                        _badge('📦 مؤرشف', AppColors.error)
+                        _badge(l10n.flavorArchivedBadge, AppColors.error)
                       else if (!flavor.isAvailable)
-                        _badge('⏸ غير متاح', AppColors.warning)
+                        _badge(l10n.flavorUnavailableBadge, AppColors.warning)
                       else
-                        _badge('✓ متاح', AppColors.success),
+                        _badge(l10n.flavorAvailableBadge, AppColors.success),
                     ],
                   ),
                 ),
               ],
             ),
-
-            // ═════ Body ═════
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    flavor.nameAr,
+                    flavorName,
                     style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.bold,
@@ -98,17 +98,15 @@ class FlavorCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    flavor.nameEn,
-                    style: const TextStyle(
-                        color: AppColors.textHint, fontSize: 11),
+                    isArabic ? flavor.nameEn : flavor.nameAr,
+                    style: const TextStyle(color: AppColors.textHint, fontSize: 11),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    flavor.descriptionAr,
-                    style: const TextStyle(
-                        color: AppColors.textSecondary, fontSize: 11),
+                    description,
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -121,22 +119,22 @@ class FlavorCard extends StatelessWidget {
                       IconButton(
                         icon: const Icon(Icons.edit, size: 18),
                         color: AppColors.info,
-                        tooltip: 'تعديل',
+                        tooltip: l10n.edit,
                         onPressed: onEdit,
                       ),
                       flavor.isArchived
                           ? IconButton(
-                        icon: const Icon(Icons.unarchive, size: 18),
-                        color: AppColors.success,
-                        tooltip: 'إلغاء الأرشفة',
-                        onPressed: onUnArchive,
-                      )
+                              icon: const Icon(Icons.unarchive, size: 18),
+                              color: AppColors.success,
+                              tooltip: l10n.archiveAction,
+                              onPressed: onUnArchive,
+                            )
                           : IconButton(
-                        icon: const Icon(Icons.archive, size: 18),
-                        color: AppColors.error,
-                        tooltip: 'أرشفة',
-                        onPressed: onArchive,
-                      ),
+                              icon: const Icon(Icons.archive, size: 18),
+                              color: AppColors.error,
+                              tooltip: l10n.archiveAction,
+                              onPressed: onArchive,
+                            ),
                     ],
                   ),
                 ],
@@ -149,25 +147,21 @@ class FlavorCard extends StatelessWidget {
   }
 
   Widget _placeholder() => Container(
-    color: AppColors.surfaceLight,
-    child: const Icon(Icons.local_drink_outlined,
-        size: 50, color: AppColors.textHint),
-  );
+        color: AppColors.surfaceLight,
+        child: const Icon(Icons.local_drink_outlined, size: 50, color: AppColors.textHint),
+      );
 
   Widget _badge(String label, Color color) => Container(
-    margin: const EdgeInsets.only(bottom: 4),
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    decoration: BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(6),
-    ),
-    child: Text(
-      label,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 10,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-  );
+        margin: const EdgeInsets.only(bottom: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/order_status.dart';
 
-/// 🎯 Stepper Timeline لتغيير حالة الأوردر
 class OrderStatusStepper extends StatelessWidget {
   final OrderStatus currentStatus;
   final void Function(OrderStatus newStatus)? onChangeStatus;
@@ -27,8 +27,6 @@ class OrderStatusStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     final isCancelled = currentStatus == OrderStatus.cancelled;
     final isDelivered = currentStatus == OrderStatus.delivered;
-
-    // ✅ تأمين الـ index لو الـ indexOf رجع -1 لأي سبب
     int currentIndex = _flow.indexOf(currentStatus);
     if (currentIndex == -1) currentIndex = 0;
 
@@ -41,8 +39,8 @@ class OrderStatusStepper extends StatelessWidget {
           color: isDelivered
               ? AppColors.success.withValues(alpha: 0.5)
               : isCancelled
-              ? AppColors.error.withValues(alpha: 0.5)
-              : AppColors.border,
+                  ? AppColors.error.withValues(alpha: 0.5)
+                  : AppColors.border,
           width: isDelivered || isCancelled ? 1.5 : 1,
         ),
       ),
@@ -55,39 +53,36 @@ class OrderStatusStepper extends StatelessWidget {
                 isDelivered
                     ? Icons.check_circle
                     : isCancelled
-                    ? Icons.cancel
-                    : Icons.timeline,
+                        ? Icons.cancel
+                        : Icons.timeline,
                 color: isDelivered
                     ? AppColors.success
                     : isCancelled
-                    ? AppColors.error
-                    : AppColors.primary,
+                        ? AppColors.error
+                        : AppColors.primary,
                 size: 22,
               ),
               const SizedBox(width: 8),
-              const Text(
-                'حالة الطلب',
-                style: TextStyle(
+              Text(
+                context.l10n.orderStatusLabel,
+                style: const TextStyle(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
               ),
               const Spacer(),
-              _statusBadge(currentStatus),
+              _statusBadge(context, currentStatus),
             ],
           ),
           const SizedBox(height: 20),
-
           if (isCancelled)
-            _cancelledView()
+            _cancelledView(context)
           else
-            _stepperView(currentIndex, isDelivered),
-
-          // ✅ لو متسلم: نعرض رسالة نجاح بدل أزرار التحكم
+            _stepperView(context, currentIndex, isDelivered),
           if (isDelivered) ...[
             const SizedBox(height: 16),
-            _deliveredSuccessBanner(),
+            _deliveredSuccessBanner(context),
           ] else if (!isCancelled) ...[
             const SizedBox(height: 20),
             const Divider(color: AppColors.border, height: 1),
@@ -99,8 +94,8 @@ class OrderStatusStepper extends StatelessWidget {
     );
   }
 
-  Widget _statusBadge(OrderStatus s) {
-    final color = _colorOf(s);
+  Widget _statusBadge(BuildContext context, OrderStatus status) {
+    final color = _colorOf(status);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -111,10 +106,10 @@ class OrderStatusStepper extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(_iconOf(s), color: color, size: 14),
+          Icon(_iconOf(status), color: color, size: 14),
           const SizedBox(width: 6),
           Text(
-            s.arabicName,
+            _localizedStatus(context, status),
             style: TextStyle(
               color: color,
               fontWeight: FontWeight.bold,
@@ -126,8 +121,7 @@ class OrderStatusStepper extends StatelessWidget {
     );
   }
 
-  /// 🎉 Banner نجاح لو الطلب اتسلم
-  Widget _deliveredSuccessBanner() {
+  Widget _deliveredSuccessBanner(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -138,34 +132,27 @@ class OrderStatusStepper extends StatelessWidget {
           ],
         ),
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.success.withValues(alpha: 0.4),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.check_circle, color: Colors.white, size: 32),
-          SizedBox(width: 12),
+          const Icon(Icons.check_circle, color: Colors.white, size: 32),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '✓ تم توصيل الطلب بنجاح',
-                  style: TextStyle(
+                  context.l10n.deliveredSuccessTitle,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  'الطلب مكتمل ووصل للعميل',
-                  style: TextStyle(
+                  context.l10n.deliveredSuccessSubtitle,
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 12,
                   ),
@@ -178,7 +165,7 @@ class OrderStatusStepper extends StatelessWidget {
     );
   }
 
-  Widget _cancelledView() {
+  Widget _cancelledView(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -186,27 +173,29 @@ class OrderStatusStepper extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.cancel, color: AppColors.error, size: 28),
-          SizedBox(width: 12),
+          const Icon(Icons.cancel, color: AppColors.error, size: 28),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '🚫 تم إلغاء هذا الطلب',
-                  style: TextStyle(
+                  context.l10n.cancelledOrderTitle,
+                  style: const TextStyle(
                     color: AppColors.error,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'لا يمكن تغيير حالة الطلب الملغي',
-                  style: TextStyle(
-                      color: AppColors.textSecondary, fontSize: 11),
+                  context.l10n.cancelledOrderSubtitle,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 11,
+                  ),
                 ),
               ],
             ),
@@ -216,20 +205,16 @@ class OrderStatusStepper extends StatelessWidget {
     );
   }
 
-  /// 🎯 الـ stepper - تم تعديل المنطق لضمان تلوين آخر خطوة
-  Widget _stepperView(int currentIndex, bool isDelivered) {
+  Widget _stepperView(BuildContext context, int currentIndex, bool isDelivered) {
     return Row(
       children: List.generate(_flow.length * 2 - 1, (i) {
-        // رسم الخطوط بين الخطوات
         if (i.isOdd) {
           final lineIdx = i ~/ 2;
-          // ✅ لو متسلم: كل الخطوط خضراء
-          // ✅ لو لسه: الخط أخضر لو اللي قبله خلص
           final lineColor = isDelivered
               ? AppColors.success
               : lineIdx < currentIndex
-              ? AppColors.primary
-              : AppColors.border;
+                  ? AppColors.primary
+                  : AppColors.border;
           return Expanded(
             child: Container(
               height: 3,
@@ -242,26 +227,18 @@ class OrderStatusStepper extends StatelessWidget {
           );
         }
 
-        // رسم الدوائر (الخطوات)
         final stepIdx = i ~/ 2;
         final step = _flow[stepIdx];
-
-        // ✅ منطق محسّن: الخطوة تعتبر "مكتملة" لو رقمها أقل من الاندكس الحالي
-        // أو لو الطلب كله متسلم (isDelivered)
         final isStepReached = stepIdx <= currentIndex;
         final isStepPast = stepIdx < currentIndex;
         final isStepCurrent = stepIdx == currentIndex;
         final isLastStep = stepIdx == _flow.length - 1;
 
-        // تحديد اللون
         final color = isDelivered
-            ? AppColors.success // لو الطلب متسلم، الكل أخضر
+            ? AppColors.success
             : isStepReached
-            ? _colorOf(step) // لو وصلناها، لون المرحلة
-            : AppColors.border; // لو لسه، رمادي
-
-        // تحديد الأيقونة (صح ولا أيقونة المرحلة)
-        // تظهر علامة الصح لو الخطوة فاتت، أو لو الطلب كله متسلم
+                ? _colorOf(step)
+                : AppColors.border;
         final showCheckMark = isStepPast || isDelivered;
 
         return Column(
@@ -271,38 +248,35 @@ class OrderStatusStepper extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                // ✅ الخلفية: لو الخطوة الحالية أو مكتملة تلون
                 color: isStepReached ? color : Colors.transparent,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: color,
-                  width: 2,
-                ),
-                boxShadow: (isStepCurrent && !isDelivered) || (isDelivered && isLastStep)
+                border: Border.all(color: color, width: 2),
+                boxShadow: (isStepCurrent && !isDelivered) ||
+                        (isDelivered && isLastStep)
                     ? [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.4),
-                    blurRadius: 8,
-                    spreadRadius: 2,
-                  ),
-                ]
+                        BoxShadow(
+                          color: color.withValues(alpha: 0.4),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        ),
+                      ]
                     : null,
               ),
               child: Center(
                 child: showCheckMark
                     ? const Icon(Icons.check, color: Colors.white, size: 18)
                     : Icon(
-                  _iconOf(step),
-                  color: isStepReached ? Colors.white : AppColors.textHint,
-                  size: 18,
-                ),
+                        _iconOf(step),
+                        color: isStepReached ? Colors.white : AppColors.textHint,
+                        size: 18,
+                      ),
               ),
             ),
             const SizedBox(height: 6),
             SizedBox(
               width: 70,
               child: Text(
-                step.arabicName,
+                _localizedStatus(context, step),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 10,
@@ -335,16 +309,18 @@ class OrderStatusStepper extends StatelessWidget {
                   : () => onChangeStatus!(nextStep),
               icon: isLoading
                   ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                    strokeWidth: 2, color: Colors.white),
-              )
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
                   : Icon(_iconOf(nextStep), size: 18),
               label: Text(
                 isLoading
-                    ? 'جاري التحديث...'
-                    : 'انتقل إلى: ${nextStep.arabicName}',
+                    ? context.l10n.updatingLabel
+                    : context.l10n.goToNextStatus(_localizedStatus(context, nextStep)),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _colorOf(nextStep),
@@ -354,14 +330,13 @@ class OrderStatusStepper extends StatelessWidget {
           ),
           const SizedBox(width: 8),
         ],
-
         Expanded(
           child: OutlinedButton.icon(
             onPressed: isLoading || onChangeStatus == null
                 ? null
                 : () => _confirmCancel(context),
             icon: const Icon(Icons.cancel_outlined, size: 18),
-            label: const Text('إلغاء'),
+            label: Text(context.l10n.cancelOrder),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.error,
               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -378,22 +353,24 @@ class OrderStatusStepper extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.warning, color: AppColors.error),
-            SizedBox(width: 8),
-            Text('تأكيد الإلغاء',
-                style: TextStyle(color: AppColors.textPrimary)),
+            const Icon(Icons.warning, color: AppColors.error),
+            const SizedBox(width: 8),
+            Text(
+              context.l10n.confirmCancellation,
+              style: const TextStyle(color: AppColors.textPrimary),
+            ),
           ],
         ),
-        content: const Text(
-          'هل أنت متأكد من إلغاء هذا الطلب؟\nلا يمكن التراجع عن هذا الإجراء.',
-          style: TextStyle(color: AppColors.textSecondary),
+        content: Text(
+          context.l10n.cancelOrderConfirmMessage,
+          style: const TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('تراجع'),
+            child: Text(context.l10n.backAction),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
@@ -401,11 +378,29 @@ class OrderStatusStepper extends StatelessWidget {
               Navigator.of(ctx).pop();
               onChangeStatus?.call(OrderStatus.cancelled);
             },
-            child: const Text('إلغاء الطلب'),
+            child: Text(context.l10n.cancelOrderAction),
           ),
         ],
       ),
     );
+  }
+
+  String _localizedStatus(BuildContext context, OrderStatus status) {
+    final l10n = context.l10n;
+    switch (status) {
+      case OrderStatus.pending:
+        return l10n.pendingStatus;
+      case OrderStatus.confirmed:
+        return l10n.confirmedStatus;
+      case OrderStatus.preparing:
+        return l10n.preparingStatus;
+      case OrderStatus.outForDelivery:
+        return l10n.outForDeliveryStatus;
+      case OrderStatus.delivered:
+        return l10n.deliveredStatus;
+      case OrderStatus.cancelled:
+        return l10n.cancelledStatus;
+    }
   }
 
   Color _colorOf(OrderStatus s) {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/order_entity.dart';
 import '../../domain/entities/order_status.dart';
 
-/// 🃏 كارت الـ Order في القائمة - Compact & Clean
 class OrderListCard extends StatelessWidget {
   final OrderEntity order;
   final int dailyNumber;
@@ -20,6 +20,7 @@ class OrderListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final status = OrderStatus.fromValue(order.status);
     final statusColor = _statusColor(status);
 
@@ -34,15 +35,6 @@ class OrderListCard extends StatelessWidget {
           color: isSelected ? AppColors.primary : AppColors.border,
           width: isSelected ? 2 : 1,
         ),
-        boxShadow: isSelected
-            ? [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ]
-            : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -52,10 +44,8 @@ class OrderListCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ═════ Header (رقم الطلب + الحالة) ═════
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.08),
                   borderRadius: const BorderRadius.only(
@@ -78,7 +68,6 @@ class OrderListCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // 🔢 الرقم اليومي كبير وواضح
                           Row(
                             children: [
                               Text(
@@ -87,13 +76,11 @@ class OrderListCard extends StatelessWidget {
                                   color: statusColor,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
-                                  letterSpacing: 0.5,
                                 ),
                               ),
                               const SizedBox(width: 6),
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 5, vertical: 1),
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                                 decoration: BoxDecoration(
                                   color: AppColors.surfaceLight,
                                   borderRadius: BorderRadius.circular(3),
@@ -110,22 +97,23 @@ class OrderListCard extends StatelessWidget {
                             ],
                           ),
                           Text(
-                            _formatTime(order.createdDateTime),
+                            _formatTime(context, order.createdDateTime),
                             style: const TextStyle(
-                                color: AppColors.textHint, fontSize: 10),
+                              color: AppColors.textHint,
+                              fontSize: 10,
+                            ),
                           ),
                         ],
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: statusColor,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        status.arabicName,
+                        _localizedStatus(context, status),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -136,67 +124,57 @@ class OrderListCard extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // ═════ Body ═════
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // اسم العميل
                     Row(
                       children: [
                         CircleAvatar(
                           radius: 12,
-                          backgroundColor:
-                          AppColors.primary.withValues(alpha: 0.15),
-                          child: const Icon(Icons.person,
-                              size: 14, color: AppColors.primary),
+                          backgroundColor: AppColors.primary.withValues(alpha: 0.15),
+                          child: const Icon(Icons.person, size: 14, color: AppColors.primary),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             order.userName,
                             style: const TextStyle(
-                                color: AppColors.textPrimary,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13),
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 10),
-
-                    // المنتجات
-                    _buildProductsRow(),
-
+                    _buildProductsRow(context),
                     const SizedBox(height: 10),
-                    const Divider(
-                        height: 1, color: AppColors.border, thickness: 0.5),
+                    const Divider(height: 1, color: AppColors.border, thickness: 0.5),
                     const SizedBox(height: 8),
-
-                    // الإجمالي
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.shopping_basket,
-                                size: 12, color: AppColors.textHint),
+                            const Icon(Icons.shopping_basket, size: 12, color: AppColors.textHint),
                             const SizedBox(width: 4),
-                            Text('${order.itemsCount} قطعة',
-                                style: const TextStyle(
-                                    color: AppColors.textHint,
-                                    fontSize: 11)),
+                            Text(
+                              '${order.itemsCount} ${context.l10n.productsAndPieces(0, order.itemsCount).split('/').last.trim()}',
+                              style: const TextStyle(color: AppColors.textHint, fontSize: 11),
+                            ),
                           ],
                         ),
                         Text(
                           'L.E ${order.totalAmount.toStringAsFixed(0)}',
                           style: const TextStyle(
-                              color: AppColors.success,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
+                            color: AppColors.success,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                       ],
                     ),
@@ -210,17 +188,15 @@ class OrderListCard extends StatelessWidget {
     );
   }
 
-  /// 🎯 عرض صور المنتجات + الاسم الأول
-  Widget _buildProductsRow() {
+  Widget _buildProductsRow(BuildContext context) {
+    final l10n = context.l10n;
     final items = order.orderItems;
     if (items.isEmpty) {
-      return const Text(
-        'لا توجد منتجات',
-        style: TextStyle(color: AppColors.textHint, fontSize: 11),
+      return Text(
+        l10n.noMatchingResults,
+        style: const TextStyle(color: AppColors.textHint, fontSize: 11),
       );
     }
-
-    // عدد الصور المعروضة (max 3)
     final displayCount = items.length > 3 ? 3 : items.length;
     final remaining = items.length - displayCount;
 
@@ -230,90 +206,74 @@ class OrderListCard extends StatelessWidget {
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          // Row الصور
-          Row(
-            children: [
-              // Stack من الصور
-              SizedBox(
-                width: 36 + (displayCount - 1) * 22,
-                height: 36,
-                child: Stack(
-                  children: List.generate(displayCount, (i) {
-                    final item = items[i];
-                    return Positioned(
-                      right: i * 22.0,
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                              color: AppColors.surface, width: 2),
-                        ),
-                        child: ClipOval(
-                          child: item.fullProductImageUrl != null
-                              ? Image.network(
-                            item.fullProductImageUrl!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                _itemPlaceholder(),
-                            loadingBuilder: (_, child, p) =>
-                            p == null
-                                ? child
-                                : _itemPlaceholder(),
-                          )
-                              : _itemPlaceholder(),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // اسم أول منتج
-                    Text(
-                      items.first.safeProductNameAr,
-                      style: const TextStyle(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+          SizedBox(
+            width: 36 + (displayCount - 1) * 22,
+            height: 36,
+            child: Stack(
+              children: List.generate(displayCount, (i) {
+                final item = items[i];
+                return Positioned(
+                  right: i * 22.0,
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.surface, width: 2),
                     ),
-                    const SizedBox(height: 2),
-                    if (items.length > 1)
-                      Text(
-                        items.length == 2
-                            ? '+ ${items[1].safeProductNameAr}'
-                            : '+ ${remaining + (items.length - 1)} منتج آخر',
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 10,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      )
-                    else
-                      Text(
-                        'الكمية: ${items.first.quantity}',
-                        style: const TextStyle(
-                          color: AppColors.textHint,
-                          fontSize: 10,
-                        ),
-                      ),
-                  ],
+                    child: ClipOval(
+                      child: item.fullProductImageUrl != null
+                          ? Image.network(
+                              item.fullProductImageUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => _itemPlaceholder(),
+                              loadingBuilder: (_, child, p) => p == null ? child : _itemPlaceholder(),
+                            )
+                          : _itemPlaceholder(),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  items.first.safeProductNameAr,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                if (items.length > 1)
+                  Text(
+                    items.length == 2
+                        ? '+ ${items[1].safeProductNameAr}'
+                        : l10n.otherProductsCount(remaining + (items.length - 1)),
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 10,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  )
+                else
+                  Text(
+                    l10n.quantityLabel(items.first.quantity),
+                    style: const TextStyle(color: AppColors.textHint, fontSize: 10),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
@@ -321,10 +281,9 @@ class OrderListCard extends StatelessWidget {
   }
 
   Widget _itemPlaceholder() => Container(
-    color: AppColors.border,
-    child: const Icon(Icons.cake,
-        color: AppColors.textHint, size: 16),
-  );
+        color: AppColors.border,
+        child: const Icon(Icons.cake, color: AppColors.textHint, size: 16),
+      );
 
   Color _statusColor(OrderStatus s) {
     switch (s) {
@@ -343,7 +302,26 @@ class OrderListCard extends StatelessWidget {
     }
   }
 
-  String _formatTime(DateTime dt) {
+  String _localizedStatus(BuildContext context, OrderStatus status) {
+    final l10n = context.l10n;
+    switch (status) {
+      case OrderStatus.pending:
+        return l10n.pendingStatus;
+      case OrderStatus.confirmed:
+        return l10n.confirmedStatus;
+      case OrderStatus.preparing:
+        return l10n.preparingStatus;
+      case OrderStatus.outForDelivery:
+        return l10n.outForDeliveryStatus;
+      case OrderStatus.delivered:
+        return l10n.deliveredStatus;
+      case OrderStatus.cancelled:
+        return l10n.cancelledStatus;
+    }
+  }
+
+  String _formatTime(BuildContext context, DateTime dt) {
+    final l10n = context.l10n;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final orderDate = DateTime(dt.year, dt.month, dt.day);
@@ -351,15 +329,14 @@ class OrderListCard extends StatelessWidget {
     final m = dt.minute.toString().padLeft(2, '0');
 
     if (orderDate == today) {
-      // فرق بالدقائق/الساعات
       final diff = now.difference(dt);
-      if (diff.inMinutes < 1) return 'الآن';
-      if (diff.inMinutes < 60) return 'منذ ${diff.inMinutes} د';
-      if (diff.inHours < 24) return 'اليوم $h:$m';
+      if (diff.inMinutes < 1) return l10n.now;
+      if (diff.inMinutes < 60) return l10n.minutesAgo(diff.inMinutes);
+      if (diff.inHours < 24) return l10n.todayTime('$h:$m');
     }
     final diff = today.difference(orderDate).inDays;
-    if (diff == 1) return 'أمس $h:$m';
-    if (diff < 7) return 'منذ $diff أيام';
+    if (diff == 1) return l10n.yesterdayTime('$h:$m');
+    if (diff < 7) return l10n.daysAgo(diff);
     return '${dt.day}/${dt.month}/${dt.year}';
   }
 }

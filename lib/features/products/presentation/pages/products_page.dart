@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/dashboard_scaffold.dart';
 import '../../../categories/presentation/cubit/categories_cubit.dart';
@@ -21,7 +22,9 @@ class ProductsPage extends StatefulWidget {
 
 class _ProductsPageState extends State<ProductsPage> {
   String _searchQuery = '';
-  String _filter = 'all'; // all / active / soldout
+  String _filter = 'all';
+
+  bool get _isArabic => Localizations.localeOf(context).languageCode == 'ar';
 
   @override
   void initState() {
@@ -87,32 +90,36 @@ class _ProductsPageState extends State<ProductsPage> {
   }
 
   void _confirmSoldOut(ProductEntity product) {
+    final l10n = context.l10n;
+    final productName = _isArabic ? product.nameAr : product.nameEn;
+
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.block, color: AppColors.error),
-            SizedBox(width: 8),
-            Text('تأكيد Sold Out',
-                style: TextStyle(color: AppColors.textPrimary)),
+            const Icon(Icons.block, color: AppColors.error),
+            const SizedBox(width: 8),
+            Text(
+              l10n.confirmSoldOutTitle,
+              style: const TextStyle(color: AppColors.textPrimary),
+            ),
           ],
         ),
         content: Text(
-          'هل تريد تحديد "${product.nameAr}" كـ Sold Out؟\n'
-              'سيظهر للعملاء كمنتج غير متاح حالياً.',
+          l10n.confirmSoldOutMessage(productName),
           style: const TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('إلغاء'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             icon: const Icon(Icons.block, size: 18),
-            label: const Text('Sold Out'),
+            label: Text(l10n.soldOutAction),
             onPressed: () {
               Navigator.of(dialogContext).pop();
               context.read<ProductsCubit>().archiveProduct(product.id);
@@ -123,68 +130,63 @@ class _ProductsPageState extends State<ProductsPage> {
     );
   }
 
-  /// ✅ ترتيب جديد: النشطة فوق + المؤرشفة (Sold Out) تحت
   List<ProductEntity> _filterAndSortProducts(List<ProductEntity> products) {
     var list = products;
 
-    // Filter by status
     if (_filter == 'active') {
       list = list.where((p) => !p.isArchived).toList();
     } else if (_filter == 'soldout') {
       list = list.where((p) => p.isArchived).toList();
     }
 
-    // Search
     if (_searchQuery.isNotEmpty) {
       final q = _searchQuery.toLowerCase();
       list = list.where((p) {
-        return p.nameAr.toLowerCase().contains(q) ||
-            p.nameEn.toLowerCase().contains(q) ||
-            p.categoryNameAr.toLowerCase().contains(q);
+        final name = _isArabic ? p.nameAr : p.nameEn;
+        final category = _isArabic ? p.categoryNameAr : p.categoryNameEn;
+        return name.toLowerCase().contains(q) ||
+            category.toLowerCase().contains(q);
       }).toList();
     }
 
-    // ✅ الترتيب: النشطة (مش مؤرشفة) أولاً، ثم المؤرشفة (Sold Out)
     final active = list.where((p) => !p.isArchived).toList();
     final soldOut = list.where((p) => p.isArchived).toList();
-
     return [...active, ...soldOut];
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return DashboardScaffold(
-      pageTitle: 'المنتجات',
-      pageSubtitle: 'إدارة منتجات المتجر',
+      pageTitle: l10n.productsPageTitle,
+      pageSubtitle: l10n.productsPageSubtitle,
       pageIcon: Icons.cake,
       headerAction: BlocBuilder<ProductsCubit, ProductsState>(
         builder: (context, state) {
           int activeCount = 0;
           int soldOutCount = 0;
           if (state is ProductsLoaded) {
-            activeCount =
-                state.products.items.where((p) => !p.isArchived).length;
-            soldOutCount =
-                state.products.items.where((p) => p.isArchived).length;
+            activeCount = state.products.items.where((p) => !p.isArchived).length;
+            soldOutCount = state.products.items.where((p) => p.isArchived).length;
           }
           return Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (state is ProductsLoaded) ...[
-                _countBadge('$activeCount متاح', AppColors.success),
+                _countBadge('$activeCount ${l10n.availableLabel}', AppColors.success),
                 if (soldOutCount > 0) ...[
                   const SizedBox(width: 6),
-                  _countBadge('$soldOutCount Sold Out', AppColors.error),
+                  _countBadge('$soldOutCount ${l10n.soldOutLabel}', AppColors.error),
                 ],
               ],
               const SizedBox(width: 12),
               ElevatedButton.icon(
                 onPressed: _openAddWizard,
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('منتج جديد'),
+                label: Text(l10n.newProduct),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
               ),
             ],
@@ -193,10 +195,10 @@ class _ProductsPageState extends State<ProductsPage> {
       ),
       floatingActionButton: MediaQuery.of(context).size.width < 700
           ? FloatingActionButton(
-        onPressed: _openAddWizard,
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add),
-      )
+              onPressed: _openAddWizard,
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.add),
+            )
           : null,
       body: BlocListener<ProductsCubit, ProductsState>(
         listener: (context, state) {
@@ -218,8 +220,8 @@ class _ProductsPageState extends State<ProductsPage> {
         },
         child: Column(
           children: [
-            _buildFiltersBar(),
-            Expanded(child: _buildProductsList()),
+            _buildFiltersBar(context),
+            Expanded(child: _buildProductsList(context)),
           ],
         ),
       ),
@@ -227,19 +229,23 @@ class _ProductsPageState extends State<ProductsPage> {
   }
 
   Widget _countBadge(String text, Color color) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: 0.15),
-      borderRadius: BorderRadius.circular(20),
-    ),
-    child: Text(text,
-        style: TextStyle(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
             color: color,
             fontWeight: FontWeight.bold,
-            fontSize: 11)),
-  );
+            fontSize: 11,
+          ),
+        ),
+      );
 
-  Widget _buildFiltersBar() {
+  Widget _buildFiltersBar(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -248,11 +254,10 @@ class _ProductsPageState extends State<ProductsPage> {
             child: TextField(
               onChanged: (v) => setState(() => _searchQuery = v),
               decoration: InputDecoration(
-                hintText: 'ابحث عن منتج...',
+                hintText: l10n.productsSearchHint,
                 prefixIcon: const Icon(Icons.search, size: 20),
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(color: AppColors.border),
@@ -273,14 +278,11 @@ class _ProductsPageState extends State<ProductsPage> {
               underline: const SizedBox.shrink(),
               dropdownColor: AppColors.surfaceLight,
               style: const TextStyle(color: AppColors.textPrimary),
-              icon: const Icon(Icons.filter_list,
-                  color: AppColors.textSecondary),
-              items: const [
-                DropdownMenuItem(value: 'all', child: Text('الكل')),
-                DropdownMenuItem(
-                    value: 'active', child: Text('المتاحة فقط')),
-                DropdownMenuItem(
-                    value: 'soldout', child: Text('Sold Out فقط')),
+              icon: const Icon(Icons.filter_list, color: AppColors.textSecondary),
+              items: [
+                DropdownMenuItem(value: 'all', child: Text(l10n.allFilterProducts)),
+                DropdownMenuItem(value: 'active', child: Text(l10n.activeOnlyFilter)),
+                DropdownMenuItem(value: 'soldout', child: Text(l10n.soldOutOnlyFilter)),
               ],
               onChanged: (v) => setState(() => _filter = v ?? 'all'),
             ),
@@ -290,30 +292,26 @@ class _ProductsPageState extends State<ProductsPage> {
     );
   }
 
-  Widget _buildProductsList() {
+  Widget _buildProductsList(BuildContext context) {
+    final l10n = context.l10n;
     return BlocBuilder<ProductsCubit, ProductsState>(
       builder: (context, state) {
         if (state is ProductsLoading || state is ProductsInitial) {
-          return const Center(
-              child:
-              CircularProgressIndicator(color: AppColors.primary));
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
         }
         if (state is ProductsFailure) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline,
-                    size: 60, color: AppColors.error),
+                const Icon(Icons.error_outline, size: 60, color: AppColors.error),
                 const SizedBox(height: 12),
-                Text(state.message,
-                    style: const TextStyle(color: AppColors.error)),
+                Text(state.message, style: const TextStyle(color: AppColors.error)),
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
-                  onPressed: () =>
-                      context.read<ProductsCubit>().fetchAllProducts(),
+                  onPressed: () => context.read<ProductsCubit>().fetchAllProducts(),
                   icon: const Icon(Icons.refresh),
-                  label: const Text('إعادة المحاولة'),
+                  label: Text(l10n.retry),
                 ),
               ],
             ),
@@ -326,32 +324,27 @@ class _ProductsPageState extends State<ProductsPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.inbox,
-                      size: 80, color: AppColors.textHint),
+                  const Icon(Icons.inbox, size: 80, color: AppColors.textHint),
                   const SizedBox(height: 12),
                   Text(
                     _searchQuery.isNotEmpty
-                        ? 'لا توجد نتائج مطابقة'
-                        : (_filter == 'soldout'
-                        ? 'لا توجد منتجات Sold Out'
-                        : 'لا توجد منتجات بعد'),
-                    style: const TextStyle(
-                        color: AppColors.textSecondary, fontSize: 16),
+                        ? l10n.noMatchingResults
+                        : (_filter == 'soldout' ? l10n.noSoldOutProducts : l10n.noProductsYet),
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
                   if (_searchQuery.isEmpty && _filter != 'soldout')
                     ElevatedButton.icon(
                       onPressed: _openAddWizard,
                       icon: const Icon(Icons.add),
-                      label: const Text('إضافة منتج جديد'),
+                      label: Text(l10n.addNewProduct),
                     ),
                 ],
               ),
             );
           }
           return RefreshIndicator(
-            onRefresh: () =>
-                context.read<ProductsCubit>().fetchAllProducts(),
+            onRefresh: () => context.read<ProductsCubit>().fetchAllProducts(),
             color: AppColors.primary,
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -371,8 +364,7 @@ class _ProductsPageState extends State<ProductsPage> {
                   }
                   return GridView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    gridDelegate:
-                    SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount,
                       crossAxisSpacing: 14,
                       mainAxisSpacing: 14,
@@ -383,13 +375,10 @@ class _ProductsPageState extends State<ProductsPage> {
                       final p = products[i];
                       return ProductCard(
                         product: p,
-                        // ✅ الضغط على الكارت → صفحة التفاصيل
                         onTap: () => _openDetailsPage(p),
                         onEdit: () => _openEditWizard(p),
                         onArchive: () => _confirmSoldOut(p),
-                        onUnArchive: () => context
-                            .read<ProductsCubit>()
-                            .unArchiveProduct(p.id),
+                        onUnArchive: () => context.read<ProductsCubit>().unArchiveProduct(p.id),
                         onAssignFlavors: () => _openEditWizard(p),
                       );
                     },

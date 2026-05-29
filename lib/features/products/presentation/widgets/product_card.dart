@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/product_entity.dart';
 
@@ -22,7 +23,12 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
     final isSoldOut = product.isArchived;
+    final productName = isArabic ? product.nameAr : product.nameEn;
+    final categoryName = isArabic ? product.categoryNameAr : product.categoryNameEn;
+    final description = isArabic ? product.descriptionAr : product.descriptionEn;
 
     return InkWell(
       onTap: onTap,
@@ -40,56 +46,53 @@ class ProductCard extends StatelessWidget {
           boxShadow: isSoldOut
               ? null
               : [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ===== Image =====
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
                   child: AspectRatio(
                     aspectRatio: 16 / 10,
                     child: product.fullImageUrl != null
                         ? Image.network(
-                      product.fullImageUrl!,
-                      fit: BoxFit.cover,
-                      color: isSoldOut
-                          ? Colors.black.withValues(alpha: 0.5)
-                          : null,
-                      colorBlendMode:
-                      isSoldOut ? BlendMode.darken : null,
-                      errorBuilder: (_, __, ___) => _placeholder(),
-                      loadingBuilder: (_, child, progress) =>
-                      progress == null
-                          ? child
-                          : Container(
-                        color: AppColors.surfaceLight,
-                        child: const Center(
-                            child:
-                            CircularProgressIndicator(
-                                color: AppColors
-                                    .primary)),
-                      ),
-                    )
+                            product.fullImageUrl!,
+                            fit: BoxFit.cover,
+                            color: isSoldOut
+                                ? Colors.black.withValues(alpha: 0.5)
+                                : null,
+                            colorBlendMode:
+                                isSoldOut ? BlendMode.darken : null,
+                            errorBuilder: (_, __, ___) => _placeholder(),
+                            loadingBuilder: (_, child, progress) =>
+                                progress == null
+                                    ? child
+                                    : Container(
+                                        color: AppColors.surfaceLight,
+                                        child: const Center(
+                                          child: CircularProgressIndicator(
+                                            color: AppColors.primary,
+                                          ),
+                                        ),
+                                      ),
+                          )
                         : _placeholder(),
                   ),
                 ),
-
-                // 🔴 SOLD OUT Big Overlay
                 if (isSoldOut)
                   Positioned.fill(
                     child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(16)),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(16)),
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -110,19 +113,11 @@ class ProductCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: AppColors.error,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                    color: Colors.white, width: 2),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black
-                                        .withValues(alpha: 0.3),
-                                    blurRadius: 8,
-                                  ),
-                                ],
+                                border: Border.all(color: Colors.white, width: 2),
                               ),
-                              child: const Text(
-                                'SOLD OUT',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.soldOutStatus,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -135,8 +130,6 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                   ),
-
-                // Badges العلوية
                 if (!isSoldOut)
                   Positioned(
                     top: 8,
@@ -145,26 +138,21 @@ class ProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         if (product.isFeatured)
-                          _badge('⭐ مميز', AppColors.warning),
+                          _badge('${isArabic ? '⭐' : '⭐'} ${l10n.featuredLabel}', AppColors.warning),
                         if (product.isBestSeller)
-                          _badge('🔥 الأكثر مبيعاً', AppColors.accent),
+                          _badge('${isArabic ? '🔥' : '🔥'} ${l10n.bestSellerLabel}', AppColors.accent),
                         if (product.isCustomizable)
-                          _badge('🎨 قابل للتخصيص', AppColors.info),
+                          _badge('${isArabic ? '🎨' : '🎨'} ${l10n.customizableLabel}', AppColors.info),
                       ],
                     ),
                   ),
-
-                // Price badge
                 Positioned(
                   bottom: 8,
                   left: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: isSoldOut
-                          ? AppColors.textHint
-                          : AppColors.primary,
+                      color: isSoldOut ? AppColors.textHint : AppColors.primary,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -179,15 +167,13 @@ class ProductCard extends StatelessWidget {
                 ),
               ],
             ),
-
-            // ===== Body =====
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    product.nameAr,
+                    productName,
                     style: TextStyle(
                       color: isSoldOut
                           ? AppColors.textSecondary
@@ -209,7 +195,7 @@ class ProductCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          product.categoryNameAr,
+                          categoryName,
                           style: const TextStyle(
                               color: AppColors.textHint, fontSize: 11),
                           overflow: TextOverflow.ellipsis,
@@ -217,10 +203,10 @@ class ProductCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if (product.descriptionAr.isNotEmpty) ...[
+                  if (description.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Text(
-                      product.descriptionAr,
+                      description,
                       style: const TextStyle(
                           color: AppColors.textSecondary, fontSize: 11),
                       maxLines: 2,
@@ -233,14 +219,16 @@ class ProductCard extends StatelessWidget {
                     children: [
                       if (product.sizes.isNotEmpty)
                         _miniChip(
-                            '${product.sizes.length} حجم',
-                            Icons.straighten,
-                            AppColors.info),
+                          l10n.sizesCount(product.sizes.length),
+                          Icons.straighten,
+                          AppColors.info,
+                        ),
                       if (product.flavors.isNotEmpty)
                         _miniChip(
-                            '${product.flavors.length} نكهة',
-                            Icons.local_drink,
-                            AppColors.accent),
+                          l10n.flavorsCount(product.flavors.length),
+                          Icons.local_drink,
+                          AppColors.accent,
+                        ),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -249,13 +237,20 @@ class ProductCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _iconBtn(Icons.edit, AppColors.info, 'تعديل', onEdit),
+                      _iconBtn(Icons.edit, AppColors.info, l10n.edit, onEdit),
                       isSoldOut
-                          ? _iconBtn(Icons.check_circle,
-                          AppColors.success, 'إتاحة المنتج',
-                          onUnArchive)
-                          : _iconBtn(Icons.block, AppColors.error,
-                          'Sold Out', onArchive),
+                          ? _iconBtn(
+                              Icons.check_circle,
+                              AppColors.success,
+                              l10n.enableProductForSale,
+                              onUnArchive,
+                            )
+                          : _iconBtn(
+                              Icons.block,
+                              AppColors.error,
+                              l10n.soldOutAction,
+                              onArchive,
+                            ),
                     ],
                   ),
                 ],
@@ -268,45 +263,51 @@ class ProductCard extends StatelessWidget {
   }
 
   Widget _placeholder() => Container(
-    color: AppColors.surfaceLight,
-    child: const Icon(Icons.cake_outlined,
-        size: 50, color: AppColors.textHint),
-  );
+        color: AppColors.surfaceLight,
+        child: const Icon(Icons.cake_outlined,
+            size: 50, color: AppColors.textHint),
+      );
 
   Widget _badge(String label, Color color) => Container(
-    margin: const EdgeInsets.only(bottom: 4),
-    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-    decoration: BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(4),
-    ),
-    child: Text(label,
-        style: const TextStyle(
-            color: Colors.white,
-            fontSize: 9,
-            fontWeight: FontWeight.bold)),
-  );
+        margin: const EdgeInsets.only(bottom: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+              color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+        ),
+      );
 
   Widget _miniChip(String text, IconData icon, Color color) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: 0.15),
-      borderRadius: BorderRadius.circular(6),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 10, color: color),
-        const SizedBox(width: 3),
-        Text(text,
-            style: TextStyle(
-                color: color, fontSize: 9, fontWeight: FontWeight.bold)),
-      ],
-    ),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 10, color: color),
+            const SizedBox(width: 3),
+            Text(
+              text,
+              style: TextStyle(
+                  color: color, fontSize: 9, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      );
 
   Widget _iconBtn(
-      IconData icon, Color color, String tooltip, VoidCallback onTap) =>
+    IconData icon,
+    Color color,
+    String tooltip,
+    VoidCallback onTap,
+  ) =>
       IconButton(
         icon: Icon(icon, size: 18),
         color: color,

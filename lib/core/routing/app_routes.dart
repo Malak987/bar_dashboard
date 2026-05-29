@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import '../../features/accounts/presentation/pages/customers_page.dart';
+import '../../features/analytics/presentation/pages/analytics_page.dart';
 import '../../features/accounts/presentation/pages/login_page.dart';
 import '../../features/accounts/presentation/pages/register_page.dart';
+import '../../features/branches/presentation/pages/branches_page.dart';
+import '../../features/notifications/presentation/pages/notifications_page.dart';
+import '../../features/activity_log/presentation/pages/activity_log_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/categories/presentation/pages/categories_page.dart';
 import '../../features/coming_soon/presentation/pages/coming_soon_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/flavors/presentation/pages/flavors_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/products/presentation/pages/products_page.dart';
+import '../../features/reports/presentation/pages/reports_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 
 class AppRoutes {
@@ -78,30 +84,17 @@ class AppRoutes {
             const ComingSoonPage(pageName: 'الكوبونات', icon: Icons.discount),
             settings);
       case reports:
-        return _route(
-            const ComingSoonPage(pageName: 'التقارير', icon: Icons.assessment),
-            settings);
+        return _route(const ReportsPage(), settings);
       case analytics:
-        return _route(
-            const ComingSoonPage(pageName: 'التحليلات', icon: Icons.analytics),
-            settings);
+        return _route(const AnalyticsPage(), settings);
       case branches:
-        return _route(
-            const ComingSoonPage(pageName: 'الفروع', icon: Icons.store),
-            settings);
+        return _route(const BranchesPage(), settings);
       case notifications:
-        return _route(
-            const ComingSoonPage(
-                pageName: 'الإشعارات', icon: Icons.notifications),
-            settings);
+        return _route(const NotificationsPage(), settings);
       case activityLog:
-        return _route(
-            const ComingSoonPage(pageName: 'سجل النشاط', icon: Icons.history),
-            settings);
+        return _route(const ActivityLogPage(), settings);
       case AppRoutes.settings:
-        return _route(
-            const ComingSoonPage(pageName: 'الإعدادات', icon: Icons.settings),
-            settings);
+        return _route(const SettingsPage(), settings);
 
       default:
         return _route(

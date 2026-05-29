@@ -1,33 +1,47 @@
 import '../../../orders/domain/entities/order_entity.dart';
 
-/// 📊 إحصائيات العميل المحسوبة من الطلبات
 class CustomerStats {
   final List<OrderEntity> userOrders;
 
   CustomerStats(this.userOrders);
+
+  String _normalizedStatusName(OrderEntity order) =>
+      order.statusName.trim().toLowerCase();
+
+  bool _isDelivered(OrderEntity order) {
+    final statusName = _normalizedStatusName(order);
+    return statusName == 'delivered' ||
+        statusName == 'completed' ||
+        statusName == 'complete' ||
+        statusName == 'تم التوصيل' ||
+        statusName == 'مكتمل';
+  }
+
+  bool _isCancelled(OrderEntity order) {
+    final statusName = _normalizedStatusName(order);
+    return statusName == 'cancelled' ||
+        statusName == 'canceled' ||
+        statusName == 'ملغي';
+  }
 
   int get totalOrders => userOrders.length;
 
   double get totalSpent =>
       userOrders.fold(0.0, (sum, o) => sum + o.totalAmount);
 
-  int get deliveredOrders =>
-      userOrders.where((o) => o.status == 4).length;
+  int get deliveredOrders => userOrders.where(_isDelivered).length;
 
-  int get cancelledOrders =>
-      userOrders.where((o) => o.status == 5).length;
+  int get cancelledOrders => userOrders.where(_isCancelled).length;
 
   int get inProgressOrders =>
-      userOrders.where((o) => o.status >= 0 && o.status <= 3).length;
+      userOrders.where((o) => !_isDelivered(o) && !_isCancelled(o)).length;
 
   double get averageOrderValue =>
       totalOrders == 0 ? 0 : totalSpent / totalOrders;
 
-  /// نسبة الإلغاء % (مؤشر مهم للأدمن)
   double get cancellationRate =>
       totalOrders == 0 ? 0 : (cancelledOrders / totalOrders) * 100;
 
-  /// أحدث طلب
   DateTime? get lastOrderDate {
     if (userOrders.isEmpty) return null;
     return userOrders
@@ -35,14 +49,12 @@ class CustomerStats {
         .reduce((a, b) => a.isAfter(b) ? a : b);
   }
 
-  /// آخر N طلبات (الأحدث أولاً)
   List<OrderEntity> latestOrders({int limit = 5}) {
     final sorted = [...userOrders]
       ..sort((a, b) => b.createdDateTime.compareTo(a.createdDateTime));
     return sorted.take(limit).toList();
   }
 
-  /// تصنيف العميل تلقائياً حسب الإنفاق
   CustomerTier get tier {
     if (totalSpent >= 5000) return CustomerTier.gold;
     if (totalSpent >= 2000) return CustomerTier.silver;
@@ -50,18 +62,17 @@ class CustomerStats {
     return CustomerTier.regular;
   }
 
-  /// هل العميل مشكوك فيه؟ (نسبة إلغاء عالية)
-  bool get isSuspicious =>
-      totalOrders >= 3 && cancellationRate >= 50;
+  bool get isSuspicious => totalOrders >= 3 && cancellationRate >= 50;
 }
 
 enum CustomerTier {
-  regular('عادي', '🟢'),
-  bronze('برونزي', '🥉'),
-  silver('فضي', '🥈'),
-  gold('ذهبي', '🥇');
+  regular('عادي', 'Regular', '🟢'),
+  bronze('برونزي', 'Bronze', '🥉'),
+  silver('فضي', 'Silver', '🥈'),
+  gold('ذهبي', 'Gold', '🥇');
 
   final String arabicName;
+  final String englishName;
   final String emoji;
-  const CustomerTier(this.arabicName, this.emoji);
+  const CustomerTier(this.arabicName, this.englishName, this.emoji);
 }

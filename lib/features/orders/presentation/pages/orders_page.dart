@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/branch_selection/branch_selection_cubit.dart';
+import '../../../../core/localization/context_localization.dart';
+import '../../../../core/utils/branch_filter_helper.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/auto_refresh_mixin.dart';
 import '../../../../core/widgets/dashboard_scaffold.dart';
@@ -70,6 +73,7 @@ class _OrdersPageState extends State<OrdersPage>
   }
 
   void _showNewOrderNotification(int count) {
+    final l10n = context.l10n;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: AppColors.primary,
@@ -82,8 +86,8 @@ class _OrdersPageState extends State<OrdersPage>
             Expanded(
               child: Text(
                 count == 1
-                    ? '🎉 طلب جديد وصل!'
-                    : '🎉 $count طلبات جديدة وصلت!',
+                    ? l10n.singleNewOrderArrived
+                    : l10n.multipleNewOrdersArrived(count),
                 style: const TextStyle(
                     color: Colors.white, fontWeight: FontWeight.bold),
               ),
@@ -91,7 +95,7 @@ class _OrdersPageState extends State<OrdersPage>
           ],
         ),
         action: SnackBarAction(
-          label: 'عرض',
+          label: l10n.viewAll,
           textColor: Colors.white,
           onPressed: () {
             final state = context.read<OrdersCubit>().state;
@@ -105,9 +109,19 @@ class _OrdersPageState extends State<OrdersPage>
   }
 
   /// 🎯 الفلترة بدون cast - بنرجع List<dynamic> ونستخدمها كـ generic
-  List<OrderEntity> _filterOrders(List<dynamic> orders) {
+  List<OrderEntity> _filterOrders(List<dynamic> orders, BranchSelectionState branchFilter) {
     // نحول List<dynamic> لـ List<OrderEntity> (آمن لأن كل الـ Models بترث من Entity)
     var list = orders.cast<OrderEntity>();
+
+    list = list
+        .where(
+          (o) => BranchFilterHelper.matchesOrder(
+            o,
+            selectedBranchId: branchFilter.selectedBranchId,
+            selectedBranchName: branchFilter.selectedBranchName,
+          ),
+        )
+        .toList();
 
     if (_statusFilter != null) {
       list = list
@@ -139,11 +153,13 @@ class _OrdersPageState extends State<OrdersPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final branchFilter = context.watch<BranchSelectionCubit>().state;
     final isWide = MediaQuery.of(context).size.width >= 900;
 
     return DashboardScaffold(
-      pageTitle: 'الطلبات',
-      pageSubtitle: 'إدارة طلبات العملاء',
+      pageTitle: l10n.orders,
+      pageSubtitle: l10n.ordersPageSubtitle,
       pageIcon: Icons.shopping_cart,
       headerAction: BlocBuilder<OrdersCubit, OrdersState>(
         buildWhen: (_, c) => c is OrdersLoaded,
@@ -151,18 +167,26 @@ class _OrdersPageState extends State<OrdersPage>
           int total = 0;
           int pending = 0;
           if (state is OrdersLoaded) {
-            total = state.orders.totalCount;
-            pending = state.orders.items
+            final filteredOrders = (state.orders.items as List)
+                .cast<OrderEntity>()
+                .where((o) => BranchFilterHelper.matchesOrder(
+                      o,
+                      selectedBranchId: branchFilter.selectedBranchId,
+                      selectedBranchName: branchFilter.selectedBranchName,
+                    ))
+                .toList();
+            total = filteredOrders.length;
+            pending = filteredOrders
                 .where((o) => o.status == 0 || o.status == 1)
                 .length;
           }
           return Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _countBadge('$total إجمالي', AppColors.primary),
+              _countBadge('$total ${l10n.totalLabel}', AppColors.primary),
               const SizedBox(width: 6),
               if (pending > 0)
-                _countBadge('$pending قيد التنفيذ', AppColors.warning),
+                _countBadge('$pending ${l10n.inProgressLabel}', AppColors.warning),
               const SizedBox(width: 12),
               _buildRefreshButton(),
             ],
@@ -193,13 +217,15 @@ class _OrdersPageState extends State<OrdersPage>
                   return _buildError(state.message);
                 }
                 if (state is OrdersLoaded) {
-                  final orders = _filterOrders(state.orders.items);
+                  final orders = _filterOrders(state.orders.items, branchFilter);
                   if (orders.isEmpty) {
-                    return _buildEmpty();
+                    return _buildEmpty(branchFilter);
                   }
 
-                  // ✅ اختر أول order تلقائياً
-                  if (_selectedOrderId == null && orders.isNotEmpty) {
+                  final selectedOrder = _findOrderById(orders, _selectedOrderId);
+
+                  // ✅ اختر أول order تلقائياً لو مفيش اختيار أو الفرع اتغير
+                  if (selectedOrder == null && orders.isNotEmpty) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (mounted) {
                         setState(() => _selectedOrderId = orders.first.id);
@@ -209,8 +235,7 @@ class _OrdersPageState extends State<OrdersPage>
 
                   // 🔢 نُنشئ الترقيم اليومي من كل الأوردرات (مش المفلترة)
                   // عشان الأرقام تكون ثابتة بصرف النظر عن الفلتر الحالي
-                  final numbering = DailyOrderNumbering(
-                      (state.orders.items as List).cast<OrderEntity>());
+                  final numbering = DailyOrderNumbering(orders);
 
                   if (isWide) {
                     return _buildMasterDetail(orders, numbering);
@@ -228,6 +253,7 @@ class _OrdersPageState extends State<OrdersPage>
   }
 
   Widget _buildRefreshButton() {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -247,7 +273,7 @@ class _OrdersPageState extends State<OrdersPage>
           ),
           const SizedBox(width: 6),
           Text(
-            _isRefreshing ? 'تحديث...' : 'مباشر',
+            _isRefreshing ? l10n.refreshingLabel : l10n.liveLabel,
             style: TextStyle(
                 color: _isRefreshing
                     ? AppColors.primary
@@ -281,6 +307,7 @@ class _OrdersPageState extends State<OrdersPage>
   );
 
   Widget _buildFiltersBar() {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(12),
       child: Row(
@@ -289,7 +316,7 @@ class _OrdersPageState extends State<OrdersPage>
             child: TextField(
               onChanged: (v) => setState(() => _searchQuery = v),
               decoration: InputDecoration(
-                hintText: 'ابحث برقم الطلب، اسم العميل، العنوان...',
+                hintText: l10n.ordersSearchHint,
                 prefixIcon: const Icon(Icons.search, size: 20),
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(
@@ -311,16 +338,16 @@ class _OrdersPageState extends State<OrdersPage>
             ),
             child: DropdownButton<OrderStatus?>(
               value: _statusFilter,
-              hint: const Text('كل الحالات',
-                  style: TextStyle(color: AppColors.textSecondary)),
+              hint: Text(l10n.allStatuses,
+                  style: const TextStyle(color: AppColors.textSecondary)),
               underline: const SizedBox.shrink(),
               dropdownColor: AppColors.surfaceLight,
               style: const TextStyle(color: AppColors.textPrimary),
               icon: const Icon(Icons.filter_list,
                   color: AppColors.textSecondary),
               items: [
-                const DropdownMenuItem(
-                    value: null, child: Text('كل الحالات')),
+                DropdownMenuItem(
+                    value: null, child: Text(l10n.allStatuses)),
                 ...OrderStatus.values.map((s) => DropdownMenuItem(
                   value: s,
                   child: Text(s.arabicName),
@@ -376,6 +403,7 @@ class _OrdersPageState extends State<OrdersPage>
 
   Widget _buildMobileList(
       List<OrderEntity> orders, DailyOrderNumbering numbering) {
+    final l10n = context.l10n;
     return ListView.builder(
       padding: const EdgeInsets.all(12),
       itemCount: orders.length,
@@ -394,7 +422,7 @@ class _OrdersPageState extends State<OrdersPage>
                   child: Scaffold(
                     backgroundColor: AppColors.background,
                     appBar: AppBar(
-                      title: Text('طلب #\${orderNumber.toString().padLeft(3, "0")}'),
+                      title: Text('${l10n.orders} #\${orderNumber.toString().padLeft(3, "0")}'),
                       backgroundColor: AppColors.surface,
                     ),
                     body: OrderDetailsPanel(
@@ -412,6 +440,7 @@ class _OrdersPageState extends State<OrdersPage>
   }
 
   Widget _buildNoSelection() {
+    final l10n = context.l10n;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -420,15 +449,16 @@ class _OrdersPageState extends State<OrdersPage>
               size: 80,
               color: AppColors.textHint.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
-          const Text('اختر طلباً لعرض تفاصيله',
-              style: TextStyle(
+          Text(l10n.selectOrderToView,
+              style: const TextStyle(
                   color: AppColors.textSecondary, fontSize: 16)),
         ],
       ),
     );
   }
 
-  Widget _buildEmpty() {
+  Widget _buildEmpty(BranchSelectionState branchFilter) {
+    final l10n = context.l10n;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -437,8 +467,10 @@ class _OrdersPageState extends State<OrdersPage>
           const SizedBox(height: 12),
           Text(
             _searchQuery.isNotEmpty || _statusFilter != null
-                ? 'لا توجد نتائج مطابقة'
-                : 'لا توجد طلبات بعد',
+                ? l10n.noMatchingResults
+                : branchFilter.isAllBranches
+                    ? l10n.noOrdersYet
+                    : l10n.noOrdersForSelectedBranch,
             style: const TextStyle(
                 color: AppColors.textSecondary, fontSize: 16),
           ),
@@ -448,6 +480,7 @@ class _OrdersPageState extends State<OrdersPage>
   }
 
   Widget _buildError(String msg) {
+    final l10n = context.l10n;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -460,7 +493,7 @@ class _OrdersPageState extends State<OrdersPage>
           ElevatedButton.icon(
             onPressed: () => context.read<OrdersCubit>().fetchAllOrders(),
             icon: const Icon(Icons.refresh),
-            label: const Text('إعادة المحاولة'),
+            label: Text(l10n.retry),
           ),
         ],
       ),

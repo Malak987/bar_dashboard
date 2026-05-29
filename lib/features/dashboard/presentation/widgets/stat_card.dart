@@ -28,10 +28,9 @@ class StatCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
@@ -41,18 +40,23 @@ class StatCard extends StatelessWidget {
                 ),
                 child: Icon(icon, color: color, size: 20),
               ),
-              Flexible(
+              const SizedBox(width: 10),
+              Expanded(
                 child: Text(
                   title,
                   textAlign: TextAlign.end,
-                  style: const TextStyle(
-                      color: AppColors.textSecondary, fontSize: 12),
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    height: 1.2,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const Spacer(),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerRight,
@@ -67,10 +71,18 @@ class StatCard extends StatelessWidget {
           ),
           if (subtitle != null) ...[
             const SizedBox(height: 6),
-            Text(
-              subtitle!,
-              style: const TextStyle(
-                  color: AppColors.textHint, fontSize: 11),
+            Flexible(
+              child: Text(
+                subtitle!,
+                textAlign: TextAlign.end,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.textHint,
+                  fontSize: 11,
+                  height: 1.2,
+                ),
+              ),
             ),
           ],
         ],

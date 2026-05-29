@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/branch_selection/branch_selection_cubit.dart';
+import '../../../../core/localization/context_localization.dart';
+import '../../../../core/utils/branch_filter_helper.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../orders/domain/entities/order_entity.dart';
 import '../../../orders/presentation/cubit/orders_cubit.dart';
 
 class RecentOrdersSection extends StatelessWidget {
-  const RecentOrdersSection({super.key});
+  final BranchSelectionState? branchFilter;
+
+  const RecentOrdersSection({super.key, this.branchFilter});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final effectiveFilter =
+        branchFilter ?? context.watch<BranchSelectionCubit>().state;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -24,23 +33,27 @@ class RecentOrdersSection extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: () {},
-                child: const Text('عرض الكل »',
-                    style: TextStyle(color: AppColors.primary)),
+                child: Text(
+                  '${l10n.viewAll} »',
+                  style: const TextStyle(color: AppColors.primary),
+                ),
               ),
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'آخر الطلبات',
-                    style: TextStyle(
+                    l10n.recentOrdersTitle,
+                    style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
-                  Text('أحدث المعاملات',
-                      style: TextStyle(
-                          color: AppColors.textSecondary, fontSize: 11)),
+                  Text(
+                    l10n.recentOrdersSubtitle,
+                    style: const TextStyle(
+                        color: AppColors.textSecondary, fontSize: 11),
+                  ),
                 ],
               ),
             ],
@@ -50,35 +63,54 @@ class RecentOrdersSection extends StatelessWidget {
             builder: (context, state) {
               if (state is OrdersLoading) {
                 return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(40),
-                      child: CircularProgressIndicator(color: AppColors.primary),
-                    ));
+                  child: Padding(
+                    padding: EdgeInsets.all(40),
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+                );
               }
               if (state is OrdersFailure) {
                 return Padding(
                   padding: const EdgeInsets.all(20),
                   child: Center(
-                    child: Text(state.message,
-                        style: const TextStyle(color: AppColors.error)),
+                    child: Text(
+                      state.message,
+                      style: const TextStyle(color: AppColors.error),
+                    ),
                   ),
                 );
               }
               if (state is OrdersLoaded) {
-                final orders = state.orders.items.take(5).toList();
-                if (orders.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.all(40),
+                final filteredOrders = (state.orders.items as List)
+                    .cast<OrderEntity>()
+                    .where(
+                      (order) => BranchFilterHelper.matchesOrder(
+                        order,
+                        selectedBranchId: effectiveFilter.selectedBranchId,
+                        selectedBranchName: effectiveFilter.selectedBranchName,
+                      ),
+                    )
+                    .take(5)
+                    .toList();
+
+                if (filteredOrders.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.all(40),
                     child: Center(
-                      child: Text('لا توجد طلبات حالياً',
-                          style:
-                          TextStyle(color: AppColors.textSecondary)),
+                      child: Text(
+                        effectiveFilter.isAllBranches
+                            ? l10n.noOrdersYet
+                            : l10n.noOrdersForBranch,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                     ),
                   );
                 }
                 return Column(
-                  children: orders
-                      .map((o) => _OrderRow(order: o))
+                  children: filteredOrders
+                      .map((order) => _OrderRow(order: order))
                       .toList(),
                 );
               }
@@ -97,6 +129,7 @@ class _OrderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
@@ -109,20 +142,20 @@ class _OrderRow extends StatelessWidget {
           Text(
             'L.E ${order.totalAmount.toStringAsFixed(0)}',
             style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.bold,
-                fontSize: 14),
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
           ),
           const Spacer(),
           Container(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
               color: _statusColor(order.status).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              _statusLabel(order.status),
+              _statusLabel(context, order.status),
               style: TextStyle(
                 color: _statusColor(order.status),
                 fontSize: 10,
@@ -136,8 +169,8 @@ class _OrderRow extends StatelessWidget {
             children: [
               Text(
                 'ORD-${order.id.substring(0, 6).toUpperCase()}',
-                style: const TextStyle(
-                    color: AppColors.textHint, fontSize: 10),
+                style:
+                    const TextStyle(color: AppColors.textHint, fontSize: 10),
               ),
               Text(
                 order.userName,
@@ -153,30 +186,31 @@ class _OrderRow extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.receipt_long,
-                color: AppColors.primary, size: 18),
+            child:
+                const Icon(Icons.receipt_long, color: AppColors.primary, size: 18),
           ),
         ],
       ),
     );
   }
 
-  String _statusLabel(int status) {
+  String _statusLabel(BuildContext context, int status) {
+    final l10n = context.l10n;
     switch (status) {
       case 0:
-        return 'قيد التحضير';
+        return l10n.pendingStatus;
       case 1:
-        return 'مؤكد';
+        return l10n.confirmedStatus;
       case 2:
-        return 'قيد التحضير';
+        return l10n.preparingStatus;
       case 3:
-        return 'في الطريق';
+        return l10n.outForDeliveryStatus;
       case 4:
-        return 'تم التوصيل';
+        return l10n.deliveredStatus;
       case 5:
-        return 'ملغي';
+        return l10n.cancelledStatus;
       default:
-        return 'غير معروف';
+        return l10n.unknown;
     }
   }
 

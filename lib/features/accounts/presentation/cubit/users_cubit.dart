@@ -14,10 +14,10 @@ class UsersCubit extends Cubit<UsersState> {
   final UpdateUserArchiveStatusUseCase _updateArchiveStatusUseCase;
 
   UsersCubit(
-      this._getAllUsersUseCase,
-      this._getUserByIdUseCase,
-      this._updateArchiveStatusUseCase,
-      ) : super(const UsersInitial());
+    this._getAllUsersUseCase,
+    this._getUserByIdUseCase,
+    this._updateArchiveStatusUseCase,
+  ) : super(const UsersInitial());
 
   Future<void> fetchAllUsers() async {
     emit(const UsersLoading());
@@ -26,6 +26,50 @@ class UsersCubit extends Cubit<UsersState> {
       success: (users) => emit(UsersLoaded(users)),
       failure: (f) => emit(UsersFailure(f.message)),
     );
+  }
+
+  Future<void> silentRefreshAllUsers() async {
+    final result = await _getAllUsersUseCase();
+    result.when(
+      success: (users) {
+        final current = state;
+        if (current is UsersLoaded) {
+          if (_usersChanged(current.users.items, users.items) ||
+              current.users.totalCount != users.totalCount) {
+            emit(UsersLoaded(users));
+          }
+        } else {
+          emit(UsersLoaded(users));
+        }
+      },
+      failure: (_) {},
+    );
+  }
+
+  bool _usersChanged(List oldList, List newList) {
+    if (oldList.length != newList.length) return true;
+    final oldMap = <String, dynamic>{};
+    for (final item in oldList) {
+      try {
+        oldMap[(item as dynamic).id as String] = item;
+      } catch (_) {
+        return true;
+      }
+    }
+
+    for (final newItem in newList) {
+      try {
+        final dynamic n = newItem;
+        final dynamic o = oldMap[n.id as String];
+        if (o == null) return true;
+        if (o.isArchived != n.isArchived) return true;
+        if (o.name != n.name) return true;
+        if (o.phoneNumber != n.phoneNumber) return true;
+      } catch (_) {
+        return true;
+      }
+    }
+    return false;
   }
 
   Future<void> fetchUserById(String id) async {
@@ -51,8 +95,7 @@ class UsersCubit extends Cubit<UsersState> {
     result.when(
       success: (msg) {
         emit(UserActionSuccess(msg));
-        // إعادة تحميل القائمة بعد التحديث
-        fetchAllUsers();
+        silentRefreshAllUsers();
       },
       failure: (f) => emit(UserActionFailure(f.message)),
     );
@@ -69,8 +112,7 @@ class UsersCubit extends Cubit<UsersState> {
     result.when(
       success: (msg) {
         emit(UserActionSuccess(msg));
-        // إعادة تحميل القائمة بعد التحديث
-        fetchAllUsers();
+        silentRefreshAllUsers();
       },
       failure: (f) => emit(UserActionFailure(f.message)),
     );

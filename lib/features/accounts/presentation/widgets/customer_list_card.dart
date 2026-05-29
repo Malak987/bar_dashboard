@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:characters/characters.dart';
+import '../../../../core/localization/context_localization.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/user_entity.dart';
 
-/// 🃏 كارت العميل في القائمة - Compact & Clean
 class CustomerListCard extends StatelessWidget {
   final UserEntity user;
   final int ordersCount;
@@ -21,32 +22,22 @@ class CustomerListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isBlocked = user.isArchived;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: isSelected
-            ? AppColors.primary.withValues(alpha: 0.08)
-            : AppColors.surface,
+        color: isSelected ? AppColors.primary.withValues(alpha: 0.08) : AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isSelected
               ? AppColors.primary
               : isBlocked
-              ? AppColors.error.withValues(alpha: 0.5)
-              : AppColors.border,
+                  ? AppColors.error.withValues(alpha: 0.5)
+                  : AppColors.border,
           width: isSelected ? 2 : 1,
         ),
-        boxShadow: isSelected
-            ? [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ]
-            : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -60,13 +51,11 @@ class CustomerListCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    // Avatar
                     Stack(
                       children: [
                         CircleAvatar(
                           radius: 22,
-                          backgroundColor:
-                          _avatarColor(user.name).withValues(alpha: 0.2),
+                          backgroundColor: _avatarColor(user.name).withValues(alpha: 0.2),
                           child: Text(
                             _initials(user.name),
                             style: TextStyle(
@@ -86,11 +75,9 @@ class CustomerListCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: AppColors.error,
                                 shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: AppColors.surface, width: 2),
+                                border: Border.all(color: AppColors.surface, width: 2),
                               ),
-                              child: const Icon(Icons.block,
-                                  color: Colors.white, size: 9),
+                              child: const Icon(Icons.block, color: Colors.white, size: 9),
                             ),
                           ),
                       ],
@@ -103,23 +90,17 @@ class CustomerListCard extends StatelessWidget {
                           Text(
                             user.name,
                             style: TextStyle(
-                              color: isBlocked
-                                  ? AppColors.textSecondary
-                                  : AppColors.textPrimary,
+                              color: isBlocked ? AppColors.textSecondary : AppColors.textPrimary,
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
-                              decoration: isBlocked
-                                  ? TextDecoration.lineThrough
-                                  : TextDecoration.none,
+                              decoration: isBlocked ? TextDecoration.lineThrough : TextDecoration.none,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
                           Text(
                             user.email,
-                            style: const TextStyle(
-                                color: AppColors.textHint,
-                                fontSize: 10),
+                            style: const TextStyle(color: AppColors.textHint, fontSize: 10),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
@@ -127,38 +108,28 @@ class CustomerListCard extends StatelessWidget {
                     ),
                     if (isBlocked)
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 3),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                         decoration: BoxDecoration(
                           color: AppColors.error,
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Text('محظور',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold)),
+                        child: Text(
+                          l10n.blocked,
+                          style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                        ),
                       ),
                   ],
                 ),
                 const SizedBox(height: 10),
                 const Divider(height: 1, color: AppColors.border),
                 const SizedBox(height: 8),
-                // إحصائيات سريعة
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _miniStat(Icons.shopping_basket, '$ordersCount',
-                        'طلب', AppColors.info),
-                    _miniStat(
-                        Icons.attach_money,
-                        'L.E ${totalSpent.toStringAsFixed(0)}',
-                        'إجمالي',
-                        AppColors.success),
-                    if (user.phoneNumber != null &&
-                        user.phoneNumber!.isNotEmpty)
-                      const Icon(Icons.phone,
-                          color: AppColors.primary, size: 14),
+                    _miniStat(Icons.shopping_basket, '$ordersCount', l10n.orders, AppColors.info),
+                    _miniStat(Icons.attach_money, 'L.E ${totalSpent.toStringAsFixed(0)}', l10n.totalPurchase, AppColors.success),
+                    if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty)
+                      const Icon(Icons.phone, color: AppColors.primary, size: 14),
                   ],
                 ),
               ],
@@ -169,8 +140,7 @@ class CustomerListCard extends StatelessWidget {
     );
   }
 
-  Widget _miniStat(
-      IconData icon, String value, String label, Color color) {
+  Widget _miniStat(IconData icon, String value, String label, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -178,8 +148,7 @@ class CustomerListCard extends StatelessWidget {
         const SizedBox(width: 3),
         Text(
           value,
-          style: TextStyle(
-              color: color, fontWeight: FontWeight.bold, fontSize: 11),
+          style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 11),
         ),
       ],
     );
